@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>創新微流控高剪切雙腔注射混合頭 - 3D 專業工程展示 (高對比白天模式)</title>
+  <!-- Three.js & OrbitControls from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    :root {
+      /* Dark Theme */
+      --bg-color: #0f172a;
+      --header-bg: linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0) 100%);
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-muted: #94a3b8;
+      --panel-bg: rgba(15, 23, 42, 0.94);
+      --panel-border: rgba(56, 189, 248, 0.25);
+      --box-bg: rgba(30, 41, 59, 0.75);
+      --box-border: rgba(255, 255, 255, 0.08);
+      --formula-bg: rgba(15, 23, 42, 0.85);
+      --formula-border: rgba(56, 189, 248, 0.4);
+      --formula-color: #34d399;
+      --toolbar-bg: rgba(30, 41, 59, 0.92);
+      --toolbar-border: rgba(255, 255, 255, 0.15);
+      --btn-hover: rgba(255, 255, 255, 0.1);
+      --shadow: rgba(0, 0, 0, 0.6);
+      --step-bg: rgba(30, 41, 59, 0.9);
+    }
+
+    body.light-mode {
+      /* High-Contrast Light Theme (Pro CAD Studio) */
+      --bg-color: #e2e8f0;
+      --header-bg: linear-gradient(180deg, rgba(241,245,249,0.98) 0%, rgba(241,245,249,0) 100%);
+      --text-main: #0f172a;
+      --text-sub: #1e293b;
+      --text-muted: #475569;
+      --panel-bg: rgba(255, 255, 255, 0.96);
+      --panel-border: rgba(2, 132, 199, 0.35);
+      --box-bg: #f8fafc;
+      --box-border: rgba(0, 0, 0, 0.12);
+      --formula-bg: #e2e8f0;
+      --formula-border: #0284c7;
+      --formula-color: #047857;
+      --toolbar-bg: rgba(255, 255, 255, 0.96);
+      --toolbar-border: rgba(0, 0, 0, 0.18);
+      --btn-hover: rgba(0, 0, 0, 0.08);
+      --shadow: rgba(0, 0, 0, 0.18);
+      --step-bg: rgba(255, 255, 255, 0.96);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    body { background: var(--bg-color); color: var(--text-main); overflow: hidden; height: 100vh; display: flex; flex-direction: column; transition: background 0.3s ease; }
+    
+    #header {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      padding: 16px 28px; display: flex; justify-content: space-between; align-items: center;
+      background: var(--header-bg); pointer-events: none;
+    }
+    #header h1 { font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; }
+    #header .badge {
+      display: inline-block; background: rgba(2, 132, 199, 0.15); border: 1px solid #0284c7;
+      color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-left: 10px;
+    }
+    
+    #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+    
+    /* Control Toolbar (Floating Bottom) */
+    #toolbar {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10;
+      display: flex; gap: 8px; background: var(--toolbar-bg); backdrop-filter: blur(16px);
+      padding: 8px 14px; border-radius: 30px; border: 1px solid var(--toolbar-border);
+      box-shadow: 0 12px 36px var(--shadow);
+    }
+    .tool-btn {
+      background: transparent; border: none; color: var(--text-muted); padding: 8px 15px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .tool-btn:hover { color: var(--text-main); background: var(--btn-hover); }
+    .tool-btn.active { background: #0284c7; color: #ffffff; box-shadow: 0 0 15px rgba(2,132,199,0.5); }
+    
+    /* Side Info Panel (Scientific Deep Dive) */
+    #info-panel {
+      position: absolute; top: 75px; right: 24px; width: 410px; z-index: 10;
+      background: var(--panel-bg); backdrop-filter: blur(20px);
+      border: 1px solid var(--panel-border); border-radius: 18px; padding: 22px;
+      box-shadow: 0 20px 45px var(--shadow); max-height: calc(100vh - 140px); overflow-y: auto;
+      transition: background 0.3s ease, border 0.3s ease;
+    }
+    #info-panel::-webkit-scrollbar { width: 6px; }
+    #info-panel::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+    
+    #info-panel h3 { font-size: 17px; color: #0284c7; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    #info-panel p { font-size: 13px; color: var(--text-sub); line-height: 1.65; margin-bottom: 14px; }
+    
+    .section-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800;
+      color: var(--text-muted); margin: 12px 0 6px 0; display: block; border-left: 3px solid #0284c7; padding-left: 6px;
+    }
+    
+    .sci-box {
+      background: var(--box-bg); border: 1px solid var(--box-border);
+      border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.55; color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .sci-box strong { color: #0284c7; }
+    .sci-box .formula {
+      background: var(--formula-bg); border: 1px dashed var(--formula-border);
+      padding: 6px 10px; border-radius: 6px; font-family: "Courier New", Courier, monospace;
+      color: var(--formula-color); font-size: 12px; margin: 6px 0; display: block; text-align: center; font-weight: 700;
+    }
+
+    .feature-tag {
+      background: rgba(16, 185, 129, 0.15); border: 1px solid #059669; color: #047857;
+      font-size: 11px; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-right: 6px; margin-bottom: 6px; font-weight: 700;
+    }
+    .metric-row {
+      display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0;
+      border-bottom: 1px solid var(--box-border); color: var(--text-muted);
+    }
+    .metric-row strong { color: var(--text-main); font-weight: 700; }
+    
+    /* Presentation Step Indicators (Top Center) */
+    #step-nav {
+      position: absolute; top: 75px; left: 50%; transform: translateX(-50%); z-index: 10;
+      display: flex; gap: 10px; background: var(--step-bg); backdrop-filter: blur(12px);
+      padding: 6px 14px; border-radius: 24px; border: 1px solid var(--toolbar-border);
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+    .step-dot {
+      width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+    }
+    .step-dot:hover { color: var(--text-main); border-color: #0284c7; }
+    .step-dot.active { background: #0284c7; color: #ffffff; border-color: #0284c7; transform: scale(1.1); box-shadow: 0 0 12px rgba(2,132,199,0.5); }
+    
+    #hint {
+      position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); z-index: 5;
+      font-size: 12px; color: var(--text-muted); pointer-events: none; background: var(--box-bg); padding: 4px 12px; border-radius: 12px; font-weight: 600;
+      border: 1px solid var(--box-border);
+    }
+  </style>
+</head>
+<body class="light-mode">
+
+  <div id="header">
+    <div>
+      <h1>創新微流控高剪切雙腔混合頭 <span class="badge">高對比科學解析 3D 視圖</span></h1>
+    </div>
+  </div>
+
+  <div id="step-nav">
+    <div class="step-dot active" onclick="setStep(0)">1</div>
+    <div class="step-dot" onclick="setStep(1)">2</div>
+    <div class="step-dot" onclick="setStep(2)">3</div>
+    <div class="step-dot" onclick="setStep(3)">4</div>
+  </div>
+
+  <div id="info-panel">
+    <h3 id="panel-title">① 雙 Luer 接口與主動流阻平衡</h3>
+    <p id="panel-desc">A 筒（高黏度 PEG 溶液，~50 cps）經由寬通徑管道導入；B 筒（水狀 T-buffer，~1 cps）經由縮頸阻尼孔導入。主動平衡兩相流阻，確保在手動推注時精確維持 1:1 體積比。</p>
+    
+    <span class="section-label">🔬 深度科學解析與流體力學原理</span>
+    <div id="panel-science" class="sci-box"></div>
+
+    <span class="section-label">⚙️ 關鍵工程指標與規格</span>
+    <div id="panel-metrics"></div>
+
+    <div id="panel-tags" style="margin-top:12px;"></div>
+  </div>
+
+  <div id="toolbar">
+    <button class="tool-btn active" id="btn-theme" onclick="toggleTheme()">☀️ 白天高對比</button>
+    <button class="tool-btn active" id="btn-flow" onclick="toggleFlow()">🌊 流體動態粒子</button>
+    <button class="tool-btn active" id="btn-housing" onclick="toggleHousing()">🏢 外殼顯示</button>
+    <button class="tool-btn" id="btn-rotate" onclick="toggleAutoRotate()">🔄 自動旋轉</button>
+    <button class="tool-btn" onclick="resetView()">🎯 重置視角</button>
+  </div>
+
+  <div id="hint">💡 拖曳滑鼠左鍵旋轉 | 右鍵平移 | 滾輪縮放視角</div>
+  <div id="canvas-container"></div>
+
+  <script>
+    // ==============================================================================
+    // 3D Scene Initialization (Default High-Contrast Studio Light Mode)
+    // ==============================================================================
+    let isDayMode = true;
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    
+    // Crisp CAD Studio Grey-White Background
+    scene.background = new THREE.Color(0xdbeafe); // Soft Medical Blue-Grey
+    scene.fog = new THREE.FogExp2(0xdbeafe, 0.008);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 4, 46);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 110;
+    controls.minDistance = 10;
+    controls.target.set(0, 0, 0);
+
+    // ==============================================================================
+    // Pro Studio Lighting Setup (Rich Shadows & High Edge Definition)
+    // ==============================================================================
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
+    keyLight.position.set(25, 40, 35);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 0.7);
+    fillLight.position.set(-30, 20, 25);
+    scene.add(fillLight);
+
+    const backLight = new THREE.DirectionalLight(0x1e293b, 0.8);
+    backLight.position.set(0, -25, -30);
+    scene.add(backLight);
+
+    let gridHelper = new THREE.GridHelper(90, 45, 0x94a3b8, 0xcbd5e1);
+    gridHelper.position.y = -24;
+    scene.add(gridHelper);
+
+    // ==============================================================================
+    // High-Contrast Materials Setup
+    // ==============================================================================
+    
+    // Housing Material (Medical Polycarbonate PC with Sapphire Crystal Tint)
+    const housingMat = new THREE.MeshPhysicalMaterial({
+      color: 0x93c5fd,
+      transparent: true,
+      opacity: 0.35,
+      roughness: 0.1,
+      metalness: 0.1,
+      transmission: 0.72,
+      ior: 1.55,
+      thickness: 2.2,
+      specularIntensity: 1.2,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.08,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    // Dark Crisp Outlines for Crystal Sharp Contours
+    const housingEdgeMat = new THREE.LineBasicMaterial({ color: 0x0369a1, linewidth: 2, transparent: true, opacity: 0.85 });
+
+    // Inlets & Tubes (Deep Saturated Contrast)
+    const luerMatA     = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.25, metalness: 0.4 }); // Deep Royal Blue
+    const luerMatB     = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.25, metalness: 0.4 }); // Deep Rich Amber
+    const channelMatA  = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.2, transparent: true, opacity: 0.88 });
+    const channelMatB  = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.2, transparent: true, opacity: 0.88 });
+    
+    // Internal Microchannel Trough (Deep Slate Base for Extreme Visual Contrast!)
+    const troughFloorMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
+    const troughWallMat  = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.25, metalness: 0.5 });
+    
+    // Herringbone Grooves (Vivid Electric Cyan - Super High Contrast on Dark Floor)
+    const grooveRibMat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8, roughness: 0.15, metalness: 0.6, emissive: 0x0284c7, emissiveIntensity: 0.55
+    });
+    
+    // Teardrop Shear Pillars (Vivid Emerald Green Metal)
+    const pillarMat    = new THREE.MeshStandardMaterial({
+      color: 0x10b981, roughness: 0.15, metalness: 0.65, emissive: 0x059669, emissiveIntensity: 0.55
+    });
+    
+    const valveMat     = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.35 });
+
+    // ==============================================================================
+    // Assembly Construction
+    // ==============================================================================
+    const assembly = new THREE.Group();
+    scene.add(assembly);
+
+    const luerSpacing = 10.0;
+
+    // -------------------------------------------------------------
+    // (A) External Housing
+    // -------------------------------------------------------------
+    const housingGroup = new THREE.Group();
+    assembly.add(housingGroup);
+
+    const luerAOuter = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.3, 7.0, 32), housingMat);
+    luerAOuter.position.set(-luerSpacing/2, 13, 0);
+    housingGroup.add(luerAOuter);
+
+    const luerBOuter = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.3, 7.0, 32), housingMat);
+    luerBOuter.position.set(luerSpacing/2, 13, 0);
+    housingGroup.add(luerBOuter);
+
+    const wingMesh = new THREE.Mesh(new THREE.BoxGeometry(luerSpacing + 8, 2.0, 5.0), housingMat);
+    wingMesh.position.set(0, 15.5, 0);
+    housingGroup.add(wingMesh);
+
+    // Main Body
+    const bodyShape = new THREE.Shape();
+    bodyShape.moveTo(-7.5, 9.5);
+    bodyShape.lineTo(7.5, 9.5);
+    bodyShape.lineTo(4.5, -9.0);
+    bodyShape.lineTo(2.2, -14.0);
+    bodyShape.lineTo(-2.2, -14.0);
+    bodyShape.lineTo(-4.5, -9.0);
+    bodyShape.closePath();
+
+    const extrudeSettings = { depth: 5.5, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.4, bevelThickness: 0.4 };
+    const bodyGeom = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
+    bodyGeom.center();
+    const bodyMesh = new THREE.Mesh(bodyGeom, housingMat);
+    bodyMesh.position.set(0, 0, 0);
+    housingGroup.add(bodyMesh);
+
+    // Edge Contours
+    const bodyEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeom), housingEdgeMat);
+    bodyMesh.add(bodyEdges);
+
+    const nozzleMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 0.8, 5.0, 32), housingMat);
+    nozzleMesh.position.set(0, -15.5, 0);
+    housingGroup.add(nozzleMesh);
+
+    // -------------------------------------------------------------
+    // (B) Internal Inlets & Smooth Converging Tubes
+    // -------------------------------------------------------------
+    const internalGroup = new THREE.Group();
+    assembly.add(internalGroup);
+
+    const socketAMesh = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 1.8, 4.5, 32), luerMatA);
+    socketAMesh.position.set(-luerSpacing/2, 13.5, 0);
+    internalGroup.add(socketAMesh);
+
+    const socketBMesh = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 1.8, 4.5, 32), luerMatB);
+    socketBMesh.position.set(luerSpacing/2, 13.5, 0);
+    internalGroup.add(socketBMesh);
+
+    const curveA = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-luerSpacing/2, 11.5, 0),
+      new THREE.Vector3(-luerSpacing/2 + 1.2, 8.5, 0),
+      new THREE.Vector3(-1.0, 5.5, 0),
+      new THREE.Vector3(-0.7, 3.5, 0)
+    ]);
+    const tubeAMesh = new THREE.Mesh(new THREE.TubeGeometry(curveA, 32, 0.75, 16, false), channelMatA);
+    internalGroup.add(tubeAMesh);
+
+    const curveB = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(luerSpacing/2, 11.5, 0),
+      new THREE.Vector3(luerSpacing/2 - 1.2, 8.5, 0),
+      new THREE.Vector3(1.0, 5.5, 0),
+      new THREE.Vector3(0.7, 3.5, 0)
+    ]);
+    const tubeBMesh = new THREE.Mesh(new THREE.TubeGeometry(curveB, 32, 0.40, 16, false), channelMatB);
+    internalGroup.add(tubeBMesh);
+
+    // -------------------------------------------------------------
+    // (C) HIGH-CONTRAST HOLLOW FLOW CHANNEL with FLOOR GROOVES
+    // -------------------------------------------------------------
+    const channelGroup = new THREE.Group();
+    assembly.add(channelGroup);
+
+    const channelWidth = 4.2;
+    const channelLength = 11.0;
+    const channelDepth = 1.2;
+
+    // Dark Contrast Channel Floor (z = -0.6)
+    const floorGeom = new THREE.BoxGeometry(channelWidth, channelLength, 0.4);
+    const floorMesh = new THREE.Mesh(floorGeom, troughFloorMat);
+    floorMesh.position.set(0, -1.5, -0.6);
+    channelGroup.add(floorMesh);
+
+    // Dark Channel Sidewalls
+    const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.4, channelLength, channelDepth), troughWallMat);
+    wallL.position.set(-channelWidth/2 - 0.2, -1.5, 0);
+    channelGroup.add(wallL);
+
+    const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.4, channelLength, channelDepth), troughWallMat);
+    wallR.position.set(channelWidth/2 + 0.2, -1.5, 0);
+    channelGroup.add(wallR);
+
+    // Luminous Herringbone Grooves (Directly on dark floor)
+    const grooveCount = 8;
+    for (let i = 0; i < grooveCount; i++) {
+      const y = 2.5 - i * 1.1;
+
+      const armL = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.3, 0.3), grooveRibMat);
+      armL.position.set(-0.75, y, -0.4);
+      armL.rotation.z = 0.65;
+      channelGroup.add(armL);
+
+      const armR = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.3), grooveRibMat);
+      armR.position.set(0.95, y - 0.22, -0.4);
+      armR.rotation.z = -0.65;
+      channelGroup.add(armR);
+    }
+
+    // -------------------------------------------------------------
+    // (D) Teardrop Shear Pillars (Inside Flow Path)
+    // -------------------------------------------------------------
+    const pShape = new THREE.Shape();
+    pShape.absarc(0, 0, 0.28, 0, Math.PI, false);
+    pShape.lineTo(0, -0.55);
+    pShape.closePath();
+
+    const pExtrude = { depth: 0.9, bevelEnabled: false };
+    const pGeom = new THREE.ExtrudeGeometry(pShape, pExtrude);
+    pGeom.center();
+
+    const pRows = 3;
+    for (let r = 0; r < pRows; r++) {
+      const yRow = -7.5 - r * 1.5;
+      const count = (r % 2 === 0) ? 3 : 2;
+      const spacing = 1.25;
+      const startX = (r % 2 === 0) ? -spacing : -spacing/2;
+
+      for (let c = 0; c < count; c++) {
+        const pillar = new THREE.Mesh(pGeom, pillarMat);
+        pillar.position.set(startX + c * spacing, yRow, -0.15);
+        channelGroup.add(pillar);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // (E) Bottom Nozzle & Active Silicone Slit Valve
+    // -------------------------------------------------------------
+    const valveMesh = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.18, 16, 32), valveMat);
+    valveMesh.position.set(0, -17.5, 0);
+    valveMesh.rotation.x = Math.PI / 2;
+    assembly.add(valveMesh);
+
+    // ==============================================================================
+    // High-Contrast Dynamic Fluid Particles
+    // ==============================================================================
+    const particleCount = 320;
+    const particleGroup = new THREE.Group();
+    assembly.add(particleGroup);
+
+    const particles = [];
+    const sphereGeom = new THREE.SphereGeometry(0.24, 10, 10);
+
+    for (let i = 0; i < particleCount; i++) {
+      const isA = i < particleCount / 2;
+      const mat = new THREE.MeshBasicMaterial({
+        color: isA ? 0x1d4ed8 : 0xb45309,
+        transparent: true, opacity: 0.98
+      });
+      const p = new THREE.Mesh(sphereGeom, mat);
+      
+      p.userData = {
+        side: isA ? -1 : 1,
+        progress: Math.random(),
+        speed: 0.0035 + Math.random() * 0.002,
+        vortexPhase: Math.random() * Math.PI * 2
+      };
+      particleGroup.add(p);
+      particles.push(p);
+    }
+
+    function updateParticles() {
+      particles.forEach(p => {
+        p.userData.progress += p.userData.speed;
+        if (p.userData.progress > 1.0) p.userData.progress = 0;
+
+        const t = p.userData.progress;
+        let x = 0, y = 0, z = 0;
+        let color = new THREE.Color();
+
+        if (t < 0.28) {
+          const subT = t / 0.28;
+          const curve = p.userData.side === -1 ? curveA : curveB;
+          const pt = curve.getPoint(subT);
+          x = pt.x; y = pt.y; z = pt.z;
+          color.setHex(p.userData.side === -1 ? (isDayMode ? 0x1d4ed8 : 0x2563eb) : (isDayMode ? 0xb45309 : 0xd97706));
+        } else if (t < 0.68) {
+          const subT = (t - 0.28) / 0.40;
+          y = THREE.MathUtils.lerp(3.5, -6.5, subT);
+          
+          const angle = p.userData.vortexPhase + subT * 15.0;
+          const radius = 1.05 * (1.0 - subT * 0.25);
+          
+          const xCenter = (p.userData.side === -1) ? -0.5 : 0.6;
+          x = xCenter + Math.cos(angle) * (radius * 0.65);
+          z = -0.3 + (Math.sin(angle) + 1.0) * 0.25;
+
+          const c1 = new THREE.Color(p.userData.side === -1 ? (isDayMode ? 0x1d4ed8 : 0x2563eb) : (isDayMode ? 0xb45309 : 0xd97706));
+          const cGreen = new THREE.Color(isDayMode ? 0x059669 : 0x10b981);
+          color = c1.lerp(cGreen, subT);
+        } else if (t < 0.88) {
+          const subT = (t - 0.68) / 0.20;
+          y = THREE.MathUtils.lerp(-6.5, -13.5, subT);
+          x = Math.sin(subT * 12 + p.userData.vortexPhase) * 0.7;
+          z = -0.15 + Math.cos(subT * 12 + p.userData.vortexPhase) * 0.2;
+          color.setHex(isDayMode ? 0x047857 : 0x10b981);
+        } else {
+          const subT = (t - 0.88) / 0.12;
+          y = THREE.MathUtils.lerp(-13.5, -23.0, subT);
+          const spread = subT * 3.5;
+          x = Math.sin(p.userData.vortexPhase) * spread;
+          z = Math.cos(p.userData.vortexPhase) * spread;
+          color.setHex(isDayMode ? 0x065f46 : 0x059669);
+        }
+
+        p.position.set(x, y, z);
+        p.material.color.copy(color);
+      });
+    }
+
+    // ==============================================================================
+    // Comprehensive Scientific Analysis Data per Step
+    // ==============================================================================
+    const stepsData = [
+      {
+        title: "① 雙 Luer 接口與主動流阻平衡",
+        desc: "A 筒（高黏度 PEG 溶液，~50 cps）經由寬通徑管道導入；B 筒（水狀 T-buffer，~1 cps）經由縮頸阻尼孔導入。主動平衡兩相流阻，確保在手動推注時精確維持 1:1 體積比。",
+        scienceHtml: `
+          <strong>【水力流阻平衡理論 (Hagen-Poiseuille Law)】</strong><br>
+          流阻方程：<span class="formula">R_h = ΔP / Q = (128 · μ · L) / (π · D⁴)</span>
+          • 黏度比：μ(PEG) / μ(T-buffer) ≈ 50 / 1<br>
+          • 若通道孔徑相同，低黏度 T-buffer 會以 50 倍流速暴衝，造成化學計量比 (Stoichiometry) 崩潰。<br>
+          • <strong>科學解法</strong>：將 T-buffer 縮頸至 Φ0.35mm，使 (D_A / D_B)⁴ ≈ (0.8 / 0.35)⁴ ≈ 27.2，補償了黏度差，達成 <strong>Q_A ≈ Q_B (1:1 體積比同步)</strong>。
+        `,
+        metrics: [
+          { label: "PEG 通道直徑 (D_A)", val: "Φ 0.80 mm" },
+          { label: "T-buffer 阻尼孔 (D_B)", val: "Φ 0.35 mm" },
+          { label: "水力流阻補償比", val: "~ 27.2 倍" },
+          { label: "Stoichiometry 誤差", val: "< ± 3.5%" }
+        ],
+        tags: ["Hagen-Poiseuille 水力平衡", "ISO 80369-7 接頭", "化學計量比 r=1.0 鎖定"],
+        camPos: { x: 0, y: 14, z: 32 },
+        target: { x: 0, y: 10, z: 0 }
+      },
+      {
+        title: "② SHM 底面人字形微溝槽 (混沌混練區)",
+        desc: "45° 夾角、深度 80 μm 的非對稱人字形微溝槽直接模塑於中空流道底面。在低雷諾數下激發強烈三維「混沌雙渦旋」，在 0.05 秒內將兩相拉伸折疊，打破層流擴散障礙。",
+        scienceHtml: `
+          <strong>【低雷諾數微流體混沌平流 (Chaotic Advection)】</strong><br>
+          微流體雷諾數：<span class="formula">Re = (ρ · v · D_h) / μ ≪ 1.0 (純層流無湍流)</span>
+          分子擴散時間公式：<span class="formula">t_diff ≈ w² / D ≈ (2.4mm)² / 10⁻¹⁰ ≈ 15~20 秒 (極慢)</span>
+          • <strong>科學機制</strong>：45° 非對稱溝槽引發橫向微壓差 ∇P_⊥，產生一對反向旋轉的三維「混沌雙渦旋 (Double Vortices)」。<br>
+          • 流體層厚度呈指數級縮小：s(t) = s₀ · e^(-λt)，將分子擴散距離壓縮至 <strong>δ < 15 μm</strong>，使擴散混勻時間從 15 秒驟降至 <strong>< 0.05 秒</strong>！
+        `,
+        metrics: [
+          { label: "流道雷諾數 Re", val: "≈ 0.15 (微層流)" },
+          { label: "特徵擴散距離 δ", val: "< 15 μm (壓縮 160倍)" },
+          { label: "渦旋混練時間", val: "< 0.05 秒 (瞬時)" },
+          { label: "專利規避性", val: "100% 避開 3D 燒結多孔" }
+        ],
+        tags: ["Chaotic Advection 混沌平流", "指數級層流減薄", "三維螺旋雙渦旋"],
+        camPos: { x: 0, y: -1, z: 22 },
+        target: { x: 0, y: -1.5, z: 0 }
+      },
+      {
+        title: "③ 淚滴形微阻流島矩陣 (高剪切撕裂與 pH 躍遷)",
+        desc: "3 排交錯排列的淚滴形微柱直接立於流道內部（狹縫 120 μm），迫使流體穿過狹縫產生超高剪切力，瞬間撕裂 4-Arm PEG 分子纏結，引發瞬時 pH 躍遷 (pH 6.0 ➔ 9.8)。",
+        scienceHtml: `
+          <strong>【高分子鏈伸展與親核反應動力學】</strong><br>
+          微狹縫壁面剪切速率：<span class="formula">γ̇ = 6Q / (w · h²) > 1200 s⁻¹ (強拉伸)</span>
+          硫醇去質子化化學平衡：<span class="formula">-SH ⇌ -S⁻ + H⁺ (pKa ≈ 8.8)</span>
+          • <strong>科學機制</strong>：微柱狹縫的高剪切力使高分子發生「線團-伸展轉變 (Coil-to-Stretch Transition)」，暴露活性官能基。<br>
+          • T-buffer 鹼性離子微觀瞬時注入，使 pH 由 6.0 躍遷至 9.8，活性硫醇陰離子 [-S⁻] 濃度<strong>暴增 1000 倍以上</strong>！進攻 PEG-SG 活性酯，實現 <strong>2~3 秒內完成共價網絡交聯</strong>！
+        `,
+        metrics: [
+          { label: "狹縫剪切速率 γ̇", val: "> 1,200 s⁻¹" },
+          { label: "pH 躍遷範圍", val: "pH 6.0 ➔ 9.8" },
+          { label: "[-S⁻] 活性親核態濃度", val: "提升 > 1,000 倍" },
+          { label: "成膠凝固時間", val: "2 ~ 3 秒 (告別水水延遲)" }
+        ],
+        tags: ["Coil-to-Stretch 鏈伸展", "pH 躍遷催化", "硫醇-活性酯極速交聯"],
+        camPos: { x: 0, y: -8, z: 20 },
+        target: { x: 0, y: -8.5, z: 0 }
+      },
+      {
+        title: "④ 漸縮噴嘴與彈性自淨微閥 (瞬時成膠與防堵)",
+        desc: "混合完成的均勻凝膠在離開噴嘴 2~3 秒內瞬時固化。出口配備矽膠彈性閥門，停止推注時回彈刮除殘膠，實現 Stop-and-Go 絕不堵塞。",
+        scienceHtml: `
+          <strong>【微流控死腔控制與動態閥彈性自淨】</strong><br>
+          流道滯留死腔公式：<span class="formula">V_dead = ∫ A(z) dz < 35 μL (極低耗損)</span>
+          微閥動態開閉力學：<span class="formula">P_fluid > P_crack ≈ 12 kPa (推注張開 / 停注回彈)</span>
+          • <strong>科學機制</strong>：傳統螺旋混合頭死腔高達 150~300 μL，暫停時殘膠在腔內交聯造成堵塞。<br>
+          • 本設計將死腔壓縮至 35 μL 以下；矽膠十字切口閥在推注停止時瞬時閉合，<strong>物理刮除噴嘴外側膠滴</strong>並隔絕空氣，實現手術中多次「暫停與重啟 (Stop-and-Go)」不堵槍。
+        `,
+        metrics: [
+          { label: "噴嘴出料孔徑", val: "Φ 1.0 mm" },
+          { label: "總內部滯留死腔", val: "< 35 μL (微升級)" },
+          { label: "微閥開裂壓 P_crack", val: "≈ 12 kPa" },
+          { label: "Stop-and-Go 性能", val: "支援多次重啟不堵槍" }
+        ],
+        tags: ["超低死腔積液 (<35 μL)", "動態彈性自淨微閥", "Stop-and-Go 抗堵塞"],
+        camPos: { x: 0, y: -16, z: 24 },
+        target: { x: 0, y: -16, z: 0 }
+      }
+    ];
+
+    let currentStep = 0;
+    function setStep(index) {
+      currentStep = index;
+      document.querySelectorAll('.step-dot').forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === index);
+      });
+
+      const data = stepsData[index];
+      document.getElementById('panel-title').innerText = data.title;
+      document.getElementById('panel-desc').innerText = data.desc;
+      
+      document.getElementById('panel-science').innerHTML = data.scienceHtml;
+
+      const metricsContainer = document.getElementById('panel-metrics');
+      metricsContainer.innerHTML = '';
+      data.metrics.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'metric-row';
+        row.innerHTML = `<span>${m.label}:</span><strong>${m.val}</strong>`;
+        metricsContainer.appendChild(row);
+      });
+
+      const tagsContainer = document.getElementById('panel-tags');
+      tagsContainer.innerHTML = '';
+      data.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'feature-tag';
+        span.innerText = t;
+        tagsContainer.appendChild(span);
+      });
+
+      gsapCamera(data.camPos, data.target);
+    }
+
+    function gsapCamera(pos, target) {
+      const startTime = performance.now();
+      const startPos = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const duration = 750;
+
+      function animateCam(time) {
+        const elapsed = time - startTime;
+        const p = Math.min(elapsed / duration, 1.0);
+        const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+        camera.position.lerpVectors(startPos, new THREE.Vector3(pos.x, pos.y, pos.z), ease);
+        controls.target.lerpVectors(startTarget, new THREE.Vector3(target.x, target.y, target.z), ease);
+
+        if (p < 1.0) {
+          requestAnimationFrame(animateCam);
+        }
+      }
+      requestAnimationFrame(animateCam);
+    }
+
+    // ==============================================================================
+    // Toolbar Controls
+    // ==============================================================================
+    function toggleTheme() {
+      isDayMode = !isDayMode;
+      document.body.classList.toggle('light-mode', isDayMode);
+      const btn = document.getElementById('btn-theme');
+
+      if (isDayMode) {
+        btn.innerText = "☀️ 白天高對比";
+        scene.background = new THREE.Color(0xdbeafe);
+        scene.fog.color = new THREE.Color(0xdbeafe);
+        
+        scene.remove(gridHelper);
+        gridHelper = new THREE.GridHelper(90, 45, 0x94a3b8, 0xcbd5e1);
+        gridHelper.position.y = -24;
+        scene.add(gridHelper);
+
+        ambientLight.intensity = 0.75;
+        keyLight.intensity = 1.25;
+        housingEdgeMat.color.setHex(0x0369a1);
+        housingEdgeMat.opacity = 0.85;
+        housingMat.color.setHex(0x93c5fd);
+        housingMat.opacity = 0.35;
+      } else {
+        btn.innerText = "🌙 暗夜模式";
+        scene.background = new THREE.Color(0x0f172a);
+        scene.fog.color = new THREE.Color(0x0f172a);
+        
+        scene.remove(gridHelper);
+        gridHelper = new THREE.GridHelper(90, 45, 0x334155, 0x1e293b);
+        gridHelper.position.y = -24;
+        scene.add(gridHelper);
+
+        ambientLight.intensity = 0.9;
+        keyLight.intensity = 1.4;
+        housingEdgeMat.color.setHex(0x38bdf8);
+        housingEdgeMat.opacity = 0.45;
+        housingMat.color.setHex(0xe2e8f0);
+        housingMat.opacity = 0.32;
+      }
+    }
+
+    let flowActive = true;
+    function toggleFlow() {
+      flowActive = !flowActive;
+      particleGroup.visible = flowActive;
+      document.getElementById('btn-flow').classList.toggle('active', flowActive);
+    }
+
+    let housingMode = 0;
+    function toggleHousing() {
+      housingMode = (housingMode + 1) % 3;
+      const btn = document.getElementById('btn-housing');
+      if (housingMode === 0) {
+        housingGroup.visible = true;
+        housingMat.opacity = isDayMode ? 0.35 : 0.32;
+        btn.innerText = "🏢 半透明外殼";
+        btn.classList.add('active');
+      } else if (housingMode === 1) {
+        housingGroup.visible = true;
+        housingMat.opacity = 0.88;
+        btn.innerText = "🏢 實體外殼";
+        btn.classList.add('active');
+      } else {
+        housingGroup.visible = false;
+        btn.innerText = "🏢 隱藏外殼 (僅流道)";
+        btn.classList.remove('active');
+      }
+    }
+
+    let autoRotate = false;
+    function toggleAutoRotate() {
+      autoRotate = !autoRotate;
+      controls.autoRotate = autoRotate;
+      controls.autoRotateSpeed = 2.0;
+      document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
+    }
+
+    function resetView() {
+      gsapCamera({ x: 0, y: 4, z: 46 }, { x: 0, y: 0, z: 0 });
+      setStep(0);
+    }
+
+    // Initialize Step 0 Data
+    setStep(0);
+
+    // ==============================================================================
+    // Render Loop
+    // ==============================================================================
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (flowActive) updateParticles();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>

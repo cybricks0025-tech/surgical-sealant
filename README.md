@@ -1,6 +1,6 @@
 # 創新微流控高剪切雙腔注射混合頭 (Surgical Sealant Dual Syringe Mixer)
 
-[![3D Interactive Viewer](https://img.shields.io/badge/3D%20Demo-Live%20Viewer-0284c7?style=for-the-badge&logo=three.js)](https://mathruffian.github.io/surgical-sealant/)
+[![3D Interactive Viewer](https://img.shields.io/badge/3D%20Demo-Live%20Viewer-0284c7?style=for-the-badge&logo=three.js)](https://cybricks0025-tech.github.io/surgical-sealant/)
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
 
 專門為解決 **「高黏度 4-Arm PEG 聚合物溶液 (~50 cps) vs 水狀鹼性 T-buffer (~1 cps) 巨大黏度差」** 量身定制的專利規避型醫療級微流控混合頭。
@@ -28,7 +28,7 @@
 ## 🎮 3D 線上互動展示與操作
 
 本專案提供基於 WebGL / Three.js 開發的 3D 互動展示模型：
-👉 **[點此進入 3D 線上展示頁面 (Live Demo)](https://mathruffian.github.io/surgical-sealant/)**
+👉 **[點此進入 3D 線上展示頁面 (Live Demo)](https://cybricks0025-tech.github.io/surgical-sealant/)**
 
 - 支援 360° 自由環景旋轉、平移與滾輪縮放。
 - 支援一鍵切換 **☀️ 白天高對比 CAD 模式** 與 **🌙 暗夜模式**。

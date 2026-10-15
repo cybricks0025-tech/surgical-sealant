@@ -1,766 +1,644 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>創新微流控高剪切雙腔注射混合頭 - 3D 專業工程展示 (高對比白天模式)</title>
-  <!-- Three.js & OrbitControls from CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <style>
-    :root {
-      /* Dark Theme */
-      --bg-color: #0f172a;
-      --header-bg: linear-gradient(180deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0) 100%);
-      --text-main: #f8fafc;
-      --text-sub: #cbd5e1;
-      --text-muted: #94a3b8;
-      --panel-bg: rgba(15, 23, 42, 0.94);
-      --panel-border: rgba(56, 189, 248, 0.25);
-      --box-bg: rgba(30, 41, 59, 0.75);
-      --box-border: rgba(255, 255, 255, 0.08);
-      --formula-bg: rgba(15, 23, 42, 0.85);
-      --formula-border: rgba(56, 189, 248, 0.4);
-      --formula-color: #34d399;
-      --toolbar-bg: rgba(30, 41, 59, 0.92);
-      --toolbar-border: rgba(255, 255, 255, 0.15);
-      --btn-hover: rgba(255, 255, 255, 0.1);
-      --shadow: rgba(0, 0, 0, 0.6);
-      --step-bg: rgba(30, 41, 59, 0.9);
-    }
-
-    body.light-mode {
-      /* High-Contrast Light Theme (Pro CAD Studio) */
-      --bg-color: #e2e8f0;
-      --header-bg: linear-gradient(180deg, rgba(241,245,249,0.98) 0%, rgba(241,245,249,0) 100%);
-      --text-main: #0f172a;
-      --text-sub: #1e293b;
-      --text-muted: #475569;
-      --panel-bg: rgba(255, 255, 255, 0.96);
-      --panel-border: rgba(2, 132, 199, 0.35);
-      --box-bg: #f8fafc;
-      --box-border: rgba(0, 0, 0, 0.12);
-      --formula-bg: #e2e8f0;
-      --formula-border: #0284c7;
-      --formula-color: #047857;
-      --toolbar-bg: rgba(255, 255, 255, 0.96);
-      --toolbar-border: rgba(0, 0, 0, 0.18);
-      --btn-hover: rgba(0, 0, 0, 0.08);
-      --shadow: rgba(0, 0, 0, 0.18);
-      --step-bg: rgba(255, 255, 255, 0.96);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    body { background: var(--bg-color); color: var(--text-main); overflow: hidden; height: 100vh; display: flex; flex-direction: column; transition: background 0.3s ease; }
-    
-    #header {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-      padding: 16px 28px; display: flex; justify-content: space-between; align-items: center;
-      background: var(--header-bg); pointer-events: none;
-    }
-    #header h1 { font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; }
-    #header .badge {
-      display: inline-block; background: rgba(2, 132, 199, 0.15); border: 1px solid #0284c7;
-      color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-left: 10px;
-    }
-    
-    #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
-    
-    /* Control Toolbar (Floating Bottom) */
-    #toolbar {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10;
-      display: flex; gap: 8px; background: var(--toolbar-bg); backdrop-filter: blur(16px);
-      padding: 8px 14px; border-radius: 30px; border: 1px solid var(--toolbar-border);
-      box-shadow: 0 12px 36px var(--shadow);
-    }
-    .tool-btn {
-      background: transparent; border: none; color: var(--text-muted); padding: 8px 15px; border-radius: 20px;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-    }
-    .tool-btn:hover { color: var(--text-main); background: var(--btn-hover); }
-    .tool-btn.active { background: #0284c7; color: #ffffff; box-shadow: 0 0 15px rgba(2,132,199,0.5); }
-    
-    /* Side Info Panel (Scientific Deep Dive) */
-    #info-panel {
-      position: absolute; top: 75px; right: 24px; width: 410px; z-index: 10;
-      background: var(--panel-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--panel-border); border-radius: 18px; padding: 22px;
-      box-shadow: 0 20px 45px var(--shadow); max-height: calc(100vh - 140px); overflow-y: auto;
-      transition: background 0.3s ease, border 0.3s ease;
-    }
-    #info-panel::-webkit-scrollbar { width: 6px; }
-    #info-panel::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
-    
-    #info-panel h3 { font-size: 17px; color: #0284c7; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
-    #info-panel p { font-size: 13px; color: var(--text-sub); line-height: 1.65; margin-bottom: 14px; }
-    
-    .section-label {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800;
-      color: var(--text-muted); margin: 12px 0 6px 0; display: block; border-left: 3px solid #0284c7; padding-left: 6px;
-    }
-    
-    .sci-box {
-      background: var(--box-bg); border: 1px solid var(--box-border);
-      border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.55; color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .sci-box strong { color: #0284c7; }
-    .sci-box .formula {
-      background: var(--formula-bg); border: 1px dashed var(--formula-border);
-      padding: 6px 10px; border-radius: 6px; font-family: "Courier New", Courier, monospace;
-      color: var(--formula-color); font-size: 12px; margin: 6px 0; display: block; text-align: center; font-weight: 700;
-    }
-
-    .feature-tag {
-      background: rgba(16, 185, 129, 0.15); border: 1px solid #059669; color: #047857;
-      font-size: 11px; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-right: 6px; margin-bottom: 6px; font-weight: 700;
-    }
-    .metric-row {
-      display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0;
-      border-bottom: 1px solid var(--box-border); color: var(--text-muted);
-    }
-    .metric-row strong { color: var(--text-main); font-weight: 700; }
-    
-    /* Presentation Step Indicators (Top Center) */
-    #step-nav {
-      position: absolute; top: 75px; left: 50%; transform: translateX(-50%); z-index: 10;
-      display: flex; gap: 10px; background: var(--step-bg); backdrop-filter: blur(12px);
-      padding: 6px 14px; border-radius: 24px; border: 1px solid var(--toolbar-border);
-      box-shadow: 0 8px 24px var(--shadow);
-    }
-    .step-dot {
-      width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.5);
-      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
-      color: var(--text-muted); cursor: pointer; transition: all 0.2s;
-    }
-    .step-dot:hover { color: var(--text-main); border-color: #0284c7; }
-    .step-dot.active { background: #0284c7; color: #ffffff; border-color: #0284c7; transform: scale(1.1); box-shadow: 0 0 12px rgba(2,132,199,0.5); }
-    
-    #hint {
-      position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); z-index: 5;
-      font-size: 12px; color: var(--text-muted); pointer-events: none; background: var(--box-bg); padding: 4px 12px; border-radius: 12px; font-weight: 600;
-      border: 1px solid var(--box-border);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHM 雙腔混合頭 v2（驗證修正版）· 3D 互動展示</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<style>
+  :root {
+    --bg:#0f172a; --text:#f8fafc; --sub:#cbd5e1; --muted:#94a3b8;
+    --panel:rgba(15,23,42,.94); --border:rgba(125,211,252,.25);
+    --box:rgba(30,41,59,.8); --boxb:rgba(255,255,255,.08);
+    --fbg:rgba(2,6,23,.7); --fcol:#6ee7b7; --accent:#38bdf8;
+    --shadow:rgba(0,0,0,.55); --lbl:rgba(15,23,42,.85); --lbltext:#e2e8f0;
+  }
+  body.light-mode {
+    --bg:#dbe4ee; --text:#0f172a; --sub:#1e293b; --muted:#475569;
+    --panel:rgba(255,255,255,.96); --border:rgba(2,132,199,.35);
+    --box:#f1f5f9; --boxb:rgba(0,0,0,.12);
+    --fbg:#e2e8f0; --fcol:#047857; --accent:#0369a1;
+    --shadow:rgba(15,23,42,.18); --lbl:rgba(255,255,255,.92); --lbltext:#0f172a;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Segoe UI",Roboto,sans-serif; }
+  body { background:var(--bg); color:var(--text); overflow:hidden; height:100vh; }
+  #canvas { position:absolute; inset:0; }
+  #header { position:absolute; top:14px; left:20px; z-index:10; pointer-events:none; max-width:46vw; }
+  #header h1 { font-size:19px; font-weight:800; letter-spacing:.3px; }
+  .badge { display:inline-block; margin-left:8px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+           color:#fff; background:#059669; vertical-align:middle; }
+  #legend { margin-top:8px; display:flex; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--muted); font-weight:600; }
+  #legend i { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+  #step-nav { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:10; display:flex; gap:8px;
+              background:var(--panel); padding:6px 12px; border-radius:24px; border:1px solid var(--border); box-shadow:0 8px 24px var(--shadow); }
+  .dot { width:34px; height:34px; border-radius:50%; border:1px solid var(--boxb); display:flex; align-items:center; justify-content:center;
+         font-weight:800; font-size:13px; color:var(--muted); cursor:pointer; transition:.2s; }
+  .dot:hover { color:var(--text); border-color:var(--accent); }
+  .dot.active { background:#0284c7; color:#fff; border-color:#0284c7; transform:scale(1.08); }
+  #info { position:absolute; top:70px; right:18px; width:430px; z-index:10; background:var(--panel); border:1px solid var(--border);
+          border-radius:16px; padding:20px; box-shadow:0 18px 44px var(--shadow); max-height:calc(100vh - 150px); overflow-y:auto; backdrop-filter:blur(16px); }
+  #info::-webkit-scrollbar { width:6px; } #info::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:4px; }
+  #info h3 { font-size:17px; color:var(--accent); margin-bottom:8px; font-weight:800; }
+  #info p { font-size:13px; color:var(--sub); line-height:1.65; margin-bottom:10px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .chip { font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; border:1px solid; }
+  .ok   { color:#047857; background:rgba(16,185,129,.12); border-color:#10b981; }
+  .fix  { color:#b45309; background:rgba(245,158,11,.12); border-color:#f59e0b; }
+  .bad  { color:#be123c; background:rgba(244,63,94,.10); border-color:#f43f5e; }
+  .tip  { color:#0369a1; background:rgba(56,189,248,.12); border-color:#38bdf8; }
+  body:not(.light-mode) .ok{color:#6ee7b7} body:not(.light-mode) .fix{color:#fcd34d}
+  body:not(.light-mode) .bad{color:#fda4af} body:not(.light-mode) .tip{color:#7dd3fc}
+  .sec { display:block; font-size:11px; font-weight:800; letter-spacing:.8px; color:var(--muted); margin:12px 0 6px; border-left:3px solid var(--accent); padding-left:6px; }
+  .box { background:var(--box); border:1px solid var(--boxb); border-radius:10px; padding:11px 12px; font-size:12.5px; line-height:1.6; color:var(--text); }
+  .box ul { padding-left:16px; } .box li { margin:3px 0; }
+  .box b { color:var(--accent); }
+  .f { display:block; background:var(--fbg); border:1px dashed var(--accent); color:var(--fcol); border-radius:6px; padding:5px 8px;
+       margin:6px 0; text-align:center; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:12px; font-weight:700; }
+  .row { display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:5px 0; border-bottom:1px solid var(--boxb); color:var(--muted); }
+  .row strong { color:var(--text); text-align:right; }
+  table.t { width:100%; border-collapse:collapse; font-size:11.5px; }
+  table.t td, table.t th { border-bottom:1px solid var(--boxb); padding:5px 4px; vertical-align:top; text-align:left; }
+  table.t th { color:var(--muted); font-weight:800; }
+  #toolbar { position:absolute; bottom:18px; left:50%; transform:translateX(-50%); z-index:10; display:flex; flex-wrap:wrap; justify-content:center; gap:6px;
+             background:var(--panel); padding:7px 12px; border-radius:28px; border:1px solid var(--border); box-shadow:0 12px 32px var(--shadow); max-width:96vw; }
+  .btn { background:transparent; border:none; color:var(--muted); padding:7px 13px; border-radius:18px; font-size:12.5px; font-weight:700; cursor:pointer; transition:.2s; }
+  .btn:hover { color:var(--text); background:rgba(148,163,184,.15); }
+  .btn.on { background:#0284c7; color:#fff; }
+  #xs { position:absolute; left:18px; bottom:84px; z-index:10; width:372px; background:var(--panel); border:1px solid var(--border);
+        border-radius:14px; padding:12px; box-shadow:0 12px 32px var(--shadow); }
+  #xs h4 { font-size:13px; font-weight:800; margin-bottom:6px; color:var(--accent); }
+  #xs canvas { width:348px; height:150px; display:block; border-radius:8px; background:var(--box); }
+  #xs input { width:100%; margin-top:8px; accent-color:#0284c7; }
+  #xs .cap { font-size:11.5px; color:var(--sub); margin-top:4px; line-height:1.5; }
+  #xs .note { font-size:10.5px; color:var(--muted); margin-top:4px; }
+  .lbl { background:var(--lbl); color:var(--lbltext); border:1px solid var(--border); padding:3px 8px; border-radius:6px; font-size:11px;
+         font-weight:700; white-space:nowrap; box-shadow:0 4px 12px var(--shadow); pointer-events:none; }
+  .lbl small { display:block; font-weight:600; color:var(--muted); font-size:10px; }
+  #hint { position:absolute; bottom:72px; left:50%; transform:translateX(-50%); z-index:5; font-size:11px; color:var(--muted); pointer-events:none; }
+  @media (max-width:980px) {
+    #info { width:calc(100vw - 24px); right:12px; top:auto; bottom:120px; max-height:38vh; }
+    #xs { display:none !important; } #header { max-width:90vw; } #step-nav { top:auto; bottom:70px; }
+  }
+</style>
 </head>
 <body class="light-mode">
+<div id="canvas"></div>
 
-  <div id="header">
-    <div>
-      <h1>創新微流控高剪切雙腔混合頭 <span class="badge">高對比科學解析 3D 視圖</span></h1>
-    </div>
+<div id="header">
+  <h1>SHM 微流控雙腔混合頭 <span class="badge">v2 · 已重新驗證</span></h1>
+  <div id="legend">
+    <span><i style="background:#1d4ed8"></i>A：PEG-SG＋PEG-SH（S-buffer，酸性）</span>
+    <span><i style="background:#d97706"></i>B：T-buffer（鹼性）</span>
+    <span><i style="background:#059669"></i>A 相已達高 pH → 交聯中</span>
   </div>
+</div>
 
-  <div id="step-nav">
-    <div class="step-dot active" onclick="setStep(0)">1</div>
-    <div class="step-dot" onclick="setStep(1)">2</div>
-    <div class="step-dot" onclick="setStep(2)">3</div>
-    <div class="step-dot" onclick="setStep(3)">4</div>
-  </div>
+<div id="step-nav">
+  <div class="dot active" onclick="setStep(0)">1</div>
+  <div class="dot" onclick="setStep(1)">2</div>
+  <div class="dot" onclick="setStep(2)">3</div>
+  <div class="dot" onclick="setStep(3)">4</div>
+  <div class="dot" onclick="setStep(4)">5</div>
+</div>
 
-  <div id="info-panel">
-    <h3 id="panel-title">① 雙 Luer 接口與主動流阻平衡</h3>
-    <p id="panel-desc">A 筒（高黏度 PEG 溶液，~50 cps）經由寬通徑管道導入；B 筒（水狀 T-buffer，~1 cps）經由縮頸阻尼孔導入。主動平衡兩相流阻，確保在手動推注時精確維持 1:1 體積比。</p>
-    
-    <span class="section-label">🔬 深度科學解析與流體力學原理</span>
-    <div id="panel-science" class="sci-box"></div>
+<div id="info">
+  <h3 id="p-title"></h3>
+  <div class="chips" id="p-chips"></div>
+  <p id="p-desc"></p>
+  <span class="sec">🔬 科學依據（已重新計算）</span>
+  <div class="box" id="p-sci"></div>
+  <span class="sec">📐 關鍵規格 / 估算值</span>
+  <div id="p-metrics"></div>
+  <span class="sec">🛠 與 v1 的差異</span>
+  <div class="box" id="p-diff"></div>
+</div>
 
-    <span class="section-label">⚙️ 關鍵工程指標與規格</span>
-    <div id="panel-metrics"></div>
+<div id="xs">
+  <h4>📊 截面混合觀察（流道橫截面 1.5 × 0.5 mm）</h4>
+  <canvas id="xs-canvas"></canvas>
+  <input id="xs-slider" type="range" min="0" max="8" step="1" value="0">
+  <div class="cap" id="xs-cap"></div>
+  <div class="note">示意性「交替雙渦旋」運動學模型（Stroock 2002 定性行為），非 CFD 結果。</div>
+</div>
 
-    <div id="panel-tags" style="margin-top:12px;"></div>
-  </div>
+<div id="toolbar">
+  <button class="btn on" id="b-theme" onclick="toggleTheme()">☀️ 白天</button>
+  <button class="btn on" id="b-flow" onclick="toggleFlow()">🌊 流體粒子</button>
+  <button class="btn on" id="b-shell" onclick="toggleShell()">🧊 外殼：半透明</button>
+  <button class="btn on" id="b-syr" onclick="toggleSyr()">💉 注射筒</button>
+  <button class="btn on" id="b-lbl" onclick="toggleLabels()">🏷 標註</button>
+  <button class="btn on" id="b-xs" onclick="toggleXS()">📊 截面</button>
+  <button class="btn" id="b-rot" onclick="toggleRot()">🔄 旋轉</button>
+  <button class="btn" onclick="setStep(currentStep, true)">🎯 重置視角</button>
+</div>
+<div id="hint">左鍵旋轉 · 右鍵平移 · 滾輪縮放 ｜ 動畫為慢動作（實際流經混合段約 0.1 s）</div>
 
-  <div id="toolbar">
-    <button class="tool-btn active" id="btn-theme" onclick="toggleTheme()">☀️ 白天高對比</button>
-    <button class="tool-btn active" id="btn-flow" onclick="toggleFlow()">🌊 流體動態粒子</button>
-    <button class="tool-btn active" id="btn-housing" onclick="toggleHousing()">🏢 外殼顯示</button>
-    <button class="tool-btn" id="btn-rotate" onclick="toggleAutoRotate()">🔄 自動旋轉</button>
-    <button class="tool-btn" onclick="resetView()">🎯 重置視角</button>
-  </div>
+<script>
+// =====================================================================
+// 0. GEOMETRY (all units = mm) — matches verify_design.py
+// =====================================================================
+const G = {
+  hubX: 5.5, hubBottom: 36, hubTop: 44,
+  w: 1.5, h: 0.5, gd: 0.15, gw: 0.25, pitch: 0.6, perHalf: 6, halves: 8,
+  chanTop: 31.2, bodyHalfW: 3.5, zMin: -1.5, zMax: 2.0, nozLen: 7.0
+};
+G.dy = G.gw * Math.SQRT2;                         // groove width measured along flow
+G.apex0 = G.chanTop - 2 * G.w / 3 - G.dy - 0.1;   // first chevron apex (y)
+G.nGroove = G.perHalf * G.halves;                 // 48 grooves
+G.lastApex = G.apex0 - (G.nGroove - 1) * G.pitch;
+G.mixEnd = G.lastApex - 0.15;                     // end of mixing channel
+G.halfLen = G.perHalf * G.pitch;                  // 3.6 mm per half-cycle
+G.grooveLen = G.halves * G.halfLen;               // 28.8 mm
+G.chipBot = G.mixEnd - 0.6;
+G.nozBot = G.chipBot - G.nozLen;
+G.tissueY = G.nozBot - 4.5;
+const STROOCK_A = 1.0e-2 / (200e-6 * Math.log(2e5)); // ≈ 4.1 (calibrated from Stroock 2002)
 
-  <div id="hint">💡 拖曳滑鼠左鍵旋轉 | 右鍵平移 | 滾輪縮放視角</div>
-  <div id="canvas-container"></div>
+// =====================================================================
+// 1. SCENE
+// =====================================================================
+let isDay = true;
+const host = document.getElementById('canvas');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xdbe4ee);
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.05, 2000);
+camera.position.set(48, 40, 78);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+host.appendChild(renderer.domElement);
 
-  <script>
-    // ==============================================================================
-    // 3D Scene Initialization (Default High-Contrast Studio Light Mode)
-    // ==============================================================================
-    let isDayMode = true;
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    
-    // Crisp CAD Studio Grey-White Background
-    scene.background = new THREE.Color(0xdbeafe); // Soft Medical Blue-Grey
-    scene.fog = new THREE.FogExp2(0xdbeafe, 0.008);
+const labelRenderer = new THREE.CSS2DRenderer();
+labelRenderer.setSize(innerWidth, innerHeight);
+Object.assign(labelRenderer.domElement.style, { position: 'absolute', top: '0', left: '0', pointerEvents: 'none' });
+host.appendChild(labelRenderer.domElement);
 
-    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 4, 46);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.06;
+controls.minDistance = 2; controls.maxDistance = 220;
+controls.target.set(0, 26, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    container.appendChild(renderer.domElement);
+const hemi = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.75); scene.add(hemi);
+const key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(30, 60, 50); scene.add(key);
+const rim = new THREE.DirectionalLight(0x93c5fd, 0.55); rim.position.set(-40, 20, -30); scene.add(rim);
+const front = new THREE.DirectionalLight(0xffffff, 0.45); front.position.set(0, 10, 60); scene.add(front);
+let grid = null;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxDistance = 110;
-    controls.minDistance = 10;
-    controls.target.set(0, 0, 0);
+// =====================================================================
+// 2. MATERIALS (colours re-applied by applyTheme)
+// =====================================================================
+const M = {
+  shell:   new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.2, roughness: 0.15, metalness: 0, side: THREE.DoubleSide, depthWrite: false }),
+  edge:    new THREE.LineBasicMaterial({ transparent: true, opacity: 0.8 }),
+  resin:   new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.05 }),
+  floorTop:new THREE.MeshStandardMaterial({ roughness: 0.45, metalness: 0.05 }),
+  floorBase:new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.1 }),
+  cavity:  new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }),
+  fluidA:  new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.8, roughness: 0.25 }),
+  fluidB:  new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.8, roughness: 0.25 }),
+  mixed:   new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.65, roughness: 0.25 }),
+  bead:    new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5, roughness: 0.2, depthWrite: false }),
+  valve:   new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.5, side: THREE.DoubleSide }),
+  rubber:  new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.8 }),
+  plunger: new THREE.MeshStandardMaterial({ roughness: 0.5 }),
+  tissue:  new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.55, roughness: 0.9, side: THREE.DoubleSide, depthWrite: false })
+};
+const COL = {};
+function palette() {
+  return isDay ? {
+    bg: 0xdbe4ee, shell: 0x7dd3fc, edge: 0x0369a1, resin: 0xcbd5e1, floorTop: 0xf1f5f9, floorBase: 0x1e293b,
+    cavity: 0x64748b, A: 0x1d4ed8, B: 0xd97706, Bpale: 0xfde68a, gel: 0x059669, plunger: 0xf8fafc,
+    tissue: 0xf9a8d4, grid1: 0x94a3b8, grid2: 0xcbd5e1
+  } : {
+    bg: 0x0f172a, shell: 0xbae6fd, edge: 0x7dd3fc, resin: 0x475569, floorTop: 0x94a3b8, floorBase: 0x020617,
+    cavity: 0x94a3b8, A: 0x60a5fa, B: 0xfbbf24, Bpale: 0x78716c, gel: 0x34d399, plunger: 0xcbd5e1,
+    tissue: 0x9d174d, grid1: 0x334155, grid2: 0x1e293b
+  };
+}
 
-    // ==============================================================================
-    // Pro Studio Lighting Setup (Rich Shadows & High Edge Definition)
-    // ==============================================================================
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-    scene.add(ambientLight);
+// =====================================================================
+// 3. BUILD ASSEMBLY
+// =====================================================================
+const root = new THREE.Group(); scene.add(root);
+const shellGroup = new THREE.Group(); root.add(shellGroup);   // translucent housings + lid
+const syrGroup = new THREE.Group(); root.add(syrGroup);
+const labels = [];
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
-    keyLight.position.set(25, 40, 35);
-    keyLight.castShadow = true;
-    scene.add(keyLight);
+function edges(mesh, thr = 20) {
+  const l = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, thr), M.edge);
+  mesh.add(l); return mesh;
+}
+function add(parent, geo, mat, x = 0, y = 0, z = 0, withEdges = false) {
+  const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); parent.add(m);
+  if (withEdges) edges(m); return m;
+}
+function label(html, x, y, z, group = 'main') {
+  const d = document.createElement('div'); d.className = 'lbl'; d.innerHTML = html;
+  const o = new THREE.CSS2DObject(d); o.position.set(x, y, z); root.add(o);
+  o.userData.group = group; labels.push(o); return o;
+}
+const zc = G.h / 2; // channel mid-height
 
-    const fillLight = new THREE.DirectionalLight(0x0284c7, 0.7);
-    fillLight.position.set(-30, 20, 25);
-    scene.add(fillLight);
+// ---------- 3.1 Dual syringes, linked plungers ----------
+const fillH = 14;
+[-1, 1].forEach(s => {
+  const x = s * G.hubX;
+  add(syrGroup, new THREE.CylinderGeometry(5, 5, 24, 48), M.shell, x, 58, zc, true);
+  add(syrGroup, new THREE.CylinderGeometry(5, 2.3, 1.2, 48), M.shell, x, 45.4, zc, true);
+  add(syrGroup, new THREE.CylinderGeometry(2.19, 1.96, 7.5, 32), M.shell, x, 41.05, zc, true); // male Luer 6 %
+  add(syrGroup, new THREE.CylinderGeometry(4.3, 4.3, fillH, 40), s < 0 ? M.fluidA : M.fluidB, x, 46 + fillH / 2, zc);
+  add(syrGroup, new THREE.CylinderGeometry(0.75, 0.75, 7.5, 16), s < 0 ? M.fluidA : M.fluidB, x, 41.05, zc);
+  add(syrGroup, new THREE.CylinderGeometry(4.32, 4.32, 2.6, 40), M.rubber, x, 46 + fillH + 1.3, zc);
+  add(syrGroup, new THREE.BoxGeometry(1.4, 12, 6), M.plunger, x, 46 + fillH + 2.6 + 6, zc);
+  add(syrGroup, new THREE.BoxGeometry(6, 12, 1.4), M.plunger, x, 46 + fillH + 2.6 + 6, zc);
+});
+add(syrGroup, new THREE.BoxGeometry(23, 1.6, 9), M.plunger, 0, 46 + fillH + 2.6 + 12.8, zc, true); // linked thumb plate
+label('雙注射筒（同內徑）＋推桿聯動<small>1:1 配比由「排量」決定，不靠流阻</small>', 0, 82, zc, 'syr');
 
-    const backLight = new THREE.DirectionalLight(0x1e293b, 0.8);
-    backLight.position.set(0, -25, -30);
-    scene.add(backLight);
+// ---------- 3.2 Female Luer-lock hubs ----------
+[-1, 1].forEach(s => {
+  const x = s * G.hubX;
+  add(shellGroup, new THREE.CylinderGeometry(3.9, 3.9, 8, 48), M.shell, x, 40, zc, true);
+  add(root, new THREE.CylinderGeometry(2.2, 1.98, 7.5, 32, 1, true), M.cavity, x, 40.2, zc);
+  [0, Math.PI].forEach(a => add(shellGroup, new THREE.BoxGeometry(1.2, 1.0, 1.6), M.shell,
+    x + Math.cos(a) * 4.3, 43.5, zc + Math.sin(a) * 4.3, true));
+});
+label('母 Luer-lock ×2<small>ISO 80369-7</small>', -G.hubX - 9, 40, zc);
 
-    let gridHelper = new THREE.GridHelper(90, 45, 0x94a3b8, 0xcbd5e1);
-    gridHelper.position.y = -24;
-    scene.add(gridHelper);
+// ---------- 3.3 Inlet manifold + equal-volume inlet channels ----------
+const manShape = new THREE.Shape();
+manShape.moveTo(-9.5, G.hubBottom); manShape.lineTo(9.5, G.hubBottom);
+manShape.lineTo(G.bodyHalfW, G.chanTop); manShape.lineTo(-G.bodyHalfW, G.chanTop); manShape.closePath();
+const manGeo = new THREE.ExtrudeGeometry(manShape, { depth: G.zMax - G.zMin, bevelEnabled: false });
+const manMesh = add(shellGroup, manGeo, M.shell, 0, 0, G.zMin, true);
 
-    // ==============================================================================
-    // High-Contrast Materials Setup
-    // ==============================================================================
-    
-    // Housing Material (Medical Polycarbonate PC with Sapphire Crystal Tint)
-    const housingMat = new THREE.MeshPhysicalMaterial({
-      color: 0x93c5fd,
-      transparent: true,
-      opacity: 0.35,
-      roughness: 0.1,
-      metalness: 0.1,
-      transmission: 0.72,
-      ior: 1.55,
-      thickness: 2.2,
-      specularIntensity: 1.2,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.08,
-      side: THREE.DoubleSide,
-      depthWrite: false
-    });
+const curves = [-1, 1].map(s => new THREE.CatmullRomCurve3([
+  new THREE.Vector3(s * G.hubX, 37.3, zc),
+  new THREE.Vector3(s * G.hubX, 35.6, zc),
+  new THREE.Vector3(s * 3.0, 33.5, zc),
+  new THREE.Vector3(s * 0.95, 31.95, zc),
+  new THREE.Vector3(s * 0.375, G.chanTop - 0.05, zc)
+], false, 'centripetal'));
+curves.forEach((c, i) => add(root, new THREE.TubeGeometry(c, 64, 0.4, 16, false), i === 0 ? M.fluidA : M.fluidB));
+const curveLen = curves[0].getLength();
+label(`等長·等徑入口 Ø0.8 mm<small>各 ≈ ${(curveLen * Math.PI * 0.16).toFixed(1)} µL，避免前後到達差（lead/lag）</small>`, 9, 33.5, zc);
 
-    // Dark Crisp Outlines for Crystal Sharp Contours
-    const housingEdgeMat = new THREE.LineBasicMaterial({ color: 0x0369a1, linewidth: 2, transparent: true, opacity: 0.85 });
+// ---------- 3.4 Mixing chip: side walls, grooved floor, lid ----------
+const chipLen = G.chanTop - G.chipBot, chipMidY = (G.chanTop + G.chipBot) / 2;
+const sideW = G.bodyHalfW - G.w / 2;
+[-1, 1].forEach(s => add(root, new THREE.BoxGeometry(sideW, chipLen, G.h - G.zMin), M.resin,
+  s * (G.w / 2 + sideW / 2), chipMidY, (G.zMin + G.h) / 2, true));
+add(root, new THREE.BoxGeometry(G.w, chipLen, -G.gd - G.zMin), M.floorBase, 0, chipMidY, (G.zMin - G.gd) / 2);
 
-    // Inlets & Tubes (Deep Saturated Contrast)
-    const luerMatA     = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.25, metalness: 0.4 }); // Deep Royal Blue
-    const luerMatB     = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.25, metalness: 0.4 }); // Deep Rich Amber
-    const channelMatA  = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.2, transparent: true, opacity: 0.88 });
-    const channelMatB  = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.2, transparent: true, opacity: 0.88 });
-    
-    // Internal Microchannel Trough (Deep Slate Base for Extreme Visual Contrast!)
-    const troughFloorMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
-    const troughWallMat  = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.25, metalness: 0.5 });
-    
-    // Herringbone Grooves (Vivid Electric Cyan - Super High Contrast on Dark Floor)
-    const grooveRibMat = new THREE.MeshStandardMaterial({
-      color: 0x38bdf8, roughness: 0.15, metalness: 0.6, emissive: 0x0284c7, emissiveIntensity: 0.55
-    });
-    
-    // Teardrop Shear Pillars (Vivid Emerald Green Metal)
-    const pillarMat    = new THREE.MeshStandardMaterial({
-      color: 0x10b981, roughness: 0.15, metalness: 0.65, emissive: 0x059669, emissiveIntensity: 0.55
-    });
-    
-    const valveMat     = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.35 });
+// grooved floor layer: rectangle with 48 asymmetric chevron holes (true recessed grooves)
+const floorShape = new THREE.Shape();
+floorShape.moveTo(-G.w / 2, G.chipBot); floorShape.lineTo(G.w / 2, G.chipBot);
+floorShape.lineTo(G.w / 2, G.chanTop); floorShape.lineTo(-G.w / 2, G.chanTop); floorShape.closePath();
+const m = 0.03, xl = -G.w / 2 + m, xr = G.w / 2 - m;
+for (let i = 0; i < G.nGroove; i++) {
+  const k = Math.floor(i / G.perHalf);
+  const xa = (k % 2 === 0) ? -G.w / 6 : G.w / 6;   // apex at 1/3 width, alternating each half-cycle
+  const ya = G.apex0 - i * G.pitch;
+  const dL = xa - xl, dR = xr - xa;                // 45°: rise = run
+  const p = new THREE.Path();
+  p.moveTo(xl, ya + dL); p.lineTo(xa, ya); p.lineTo(xr, ya + dR);
+  p.lineTo(xr, ya + dR + G.dy); p.lineTo(xa, ya + G.dy); p.lineTo(xl, ya + dL + G.dy); p.closePath();
+  floorShape.holes.push(p);
+}
+const floorGeo = new THREE.ExtrudeGeometry(floorShape, { depth: G.gd, bevelEnabled: false });
+add(root, floorGeo, M.floorTop, 0, 0, -G.gd);
 
-    // ==============================================================================
-    // Assembly Construction
-    // ==============================================================================
-    const assembly = new THREE.Group();
-    scene.add(assembly);
+const lid = add(shellGroup, new THREE.BoxGeometry(2 * G.bodyHalfW, chipLen, G.zMax - G.h), M.shell, 0, chipMidY, (G.h + G.zMax) / 2, true);
+label(`SHM 混合流道 1.5 × 0.5 mm<small>長 ${(G.chanTop - G.mixEnd).toFixed(1)} mm · 8 個半週期 · Re ≈ 20</small>`, 7.5, 20, zc);
+label('人字形凹槽（凹刻於底面）<small>深 0.15 · 寬 0.25 · 45° · 頂點位於 1/3 寬並每 6 條交替</small>', -8.5, 26, zc);
+label('透明上蓋（可隱藏）<small>實際為一體列印的封閉流道</small>', 7.5, 8, G.zMax);
 
-    const luerSpacing = 10.0;
+// ---------- 3.5 Tapered nozzle + optional duckbill + dispensed bead ----------
+const nozH = G.chipBot - G.nozBot, nozMid = (G.chipBot + G.nozBot) / 2;
+add(shellGroup, new THREE.CylinderGeometry(2.2, 1.0, nozH, 48), M.shell, 0, nozMid, zc, true);
+add(root, new THREE.CylinderGeometry(0.5, 0.3, G.mixEnd - G.nozBot, 24), M.mixed, 0, (G.mixEnd + G.nozBot) / 2, zc);
+const valve = new THREE.Group(); root.add(valve);
+[-1, 1].forEach(s => {
+  const f = add(valve, new THREE.BoxGeometry(1.5, 1.4, 0.08), M.valve, 0, G.nozBot - 0.6, zc + s * 0.18);
+  f.rotation.x = s * 0.22;
+});
+label('漸縮出口 Ø0.6 mm<small>總滯留體積 ≈ 38 µL（不含 Luer）</small>', 7, G.nozBot + 3, zc);
+label('（選配）鴨嘴防滴閥<small>只能防滴，無法阻止管內成膠</small>', -8.5, G.nozBot - 0.8, zc);
 
-    // -------------------------------------------------------------
-    // (A) External Housing
-    // -------------------------------------------------------------
-    const housingGroup = new THREE.Group();
-    assembly.add(housingGroup);
+const tissue = add(root, new THREE.CircleGeometry(10, 64), M.tissue, 0, G.tissueY, zc);
+tissue.rotation.x = -Math.PI / 2;
+const bead = add(root, new THREE.SphereGeometry(2.4, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), M.bead, 0, G.tissueY + 0.01, zc);
+label('施打的凝膠珠<small>B 相條紋中的水層靠 PEG 擴散在數秒內填滿</small>', 9, G.tissueY + 1.5, zc);
 
-    const luerAOuter = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.3, 7.0, 32), housingMat);
-    luerAOuter.position.set(-luerSpacing/2, 13, 0);
-    housingGroup.add(luerAOuter);
+// =====================================================================
+// 4. KINEMATIC SHM MODEL (blinking counter-rotating vortex pair)
+// =====================================================================
+const SWIRL = 0.15; // transverse displacement amplitude per mm of axial travel (qualitative)
+function halfIndex(y) {
+  const rel = (G.apex0 + G.pitch * 0.5) - y;
+  if (rel < 0) return -1;
+  const k = Math.floor(rel / G.halfLen);
+  return k < G.halves ? k : -1;
+}
+function field(x, z, k, out) {
+  const xa = (k % 2 === 0) ? -G.w / 6 : G.w / 6;
+  let x0, x1, sg;
+  if (x < xa) { x0 = -G.w / 2; x1 = xa; sg = 1; } else { x0 = xa; x1 = G.w / 2; sg = -1; }
+  const Lc = x1 - x0, X = (x - x0) / Lc, Z = z / G.h;
+  out.ux = sg * SWIRL * Math.sin(Math.PI * X) * (Math.PI / G.h) * Math.cos(Math.PI * Z);
+  out.uz = -sg * SWIRL * (Math.PI / Lc) * Math.cos(Math.PI * X) * Math.sin(Math.PI * Z);
+}
+const clampX = x => Math.max(-G.w / 2 + 0.01, Math.min(G.w / 2 - 0.01, x));
+const clampZ = z => Math.max(0.01, Math.min(G.h - 0.01, z));
+const _f1 = {}, _f2 = {};
+function advect(p, dy, k) {           // RK2 in cross-section, dy = axial step (mm)
+  field(p.x, p.z, k, _f1);
+  const mx = clampX(p.x + _f1.ux * dy * 0.5), mz = clampZ(p.z + _f1.uz * dy * 0.5);
+  field(mx, mz, k, _f2);
+  p.x = clampX(p.x + _f2.ux * dy); p.z = clampZ(p.z + _f2.uz * dy);
+}
 
-    const luerBOuter = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.3, 7.0, 32), housingMat);
-    luerBOuter.position.set(luerSpacing/2, 13, 0);
-    housingGroup.add(luerBOuter);
+// =====================================================================
+// 5. PARTICLES (InstancedMesh)
+// =====================================================================
+const N = 3200;
+const pGeo = new THREE.SphereGeometry(0.075, 8, 6);
+const pMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const pMesh = new THREE.InstancedMesh(pGeo, pMat, N);
+pMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+root.add(pMesh);
+const P = [];
+const V = 0.07; // mm per frame (slow motion)
+const tmpM = new THREE.Matrix4(), tmpC = new THREE.Color(), cA = new THREE.Color(), cB = new THREE.Color(), cBp = new THREE.Color(), cG = new THREE.Color();
+const tan = new THREE.Vector3();
 
-    const wingMesh = new THREE.Mesh(new THREE.BoxGeometry(luerSpacing + 8, 2.0, 5.0), housingMat);
-    wingMesh.position.set(0, 15.5, 0);
-    housingGroup.add(wingMesh);
+function spawn(p) {
+  p.side = Math.random() < 0.5 ? 0 : 1;
+  p.phase = 1; p.s = 0; p.prog = 0; p.age = 0;
+  const r = 0.33 * Math.sqrt(Math.random()), a = Math.random() * Math.PI * 2;
+  p.o1 = r * Math.cos(a); p.o2 = r * Math.sin(a);
+}
+for (let i = 0; i < N; i++) { const p = {}; spawn(p); p.s = Math.random(); P.push(p); }
 
-    // Main Body
-    const bodyShape = new THREE.Shape();
-    bodyShape.moveTo(-7.5, 9.5);
-    bodyShape.lineTo(7.5, 9.5);
-    bodyShape.lineTo(4.5, -9.0);
-    bodyShape.lineTo(2.2, -14.0);
-    bodyShape.lineTo(-2.2, -14.0);
-    bodyShape.lineTo(-4.5, -9.0);
-    bodyShape.closePath();
-
-    const extrudeSettings = { depth: 5.5, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.4, bevelThickness: 0.4 };
-    const bodyGeom = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
-    bodyGeom.center();
-    const bodyMesh = new THREE.Mesh(bodyGeom, housingMat);
-    bodyMesh.position.set(0, 0, 0);
-    housingGroup.add(bodyMesh);
-
-    // Edge Contours
-    const bodyEdges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeom), housingEdgeMat);
-    bodyMesh.add(bodyEdges);
-
-    const nozzleMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 0.8, 5.0, 32), housingMat);
-    nozzleMesh.position.set(0, -15.5, 0);
-    housingGroup.add(nozzleMesh);
-
-    // -------------------------------------------------------------
-    // (B) Internal Inlets & Smooth Converging Tubes
-    // -------------------------------------------------------------
-    const internalGroup = new THREE.Group();
-    assembly.add(internalGroup);
-
-    const socketAMesh = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 1.8, 4.5, 32), luerMatA);
-    socketAMesh.position.set(-luerSpacing/2, 13.5, 0);
-    internalGroup.add(socketAMesh);
-
-    const socketBMesh = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 1.8, 4.5, 32), luerMatB);
-    socketBMesh.position.set(luerSpacing/2, 13.5, 0);
-    internalGroup.add(socketBMesh);
-
-    const curveA = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-luerSpacing/2, 11.5, 0),
-      new THREE.Vector3(-luerSpacing/2 + 1.2, 8.5, 0),
-      new THREE.Vector3(-1.0, 5.5, 0),
-      new THREE.Vector3(-0.7, 3.5, 0)
-    ]);
-    const tubeAMesh = new THREE.Mesh(new THREE.TubeGeometry(curveA, 32, 0.75, 16, false), channelMatA);
-    internalGroup.add(tubeAMesh);
-
-    const curveB = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(luerSpacing/2, 11.5, 0),
-      new THREE.Vector3(luerSpacing/2 - 1.2, 8.5, 0),
-      new THREE.Vector3(1.0, 5.5, 0),
-      new THREE.Vector3(0.7, 3.5, 0)
-    ]);
-    const tubeBMesh = new THREE.Mesh(new THREE.TubeGeometry(curveB, 32, 0.40, 16, false), channelMatB);
-    internalGroup.add(tubeBMesh);
-
-    // -------------------------------------------------------------
-    // (C) HIGH-CONTRAST HOLLOW FLOW CHANNEL with FLOOR GROOVES
-    // -------------------------------------------------------------
-    const channelGroup = new THREE.Group();
-    assembly.add(channelGroup);
-
-    const channelWidth = 4.2;
-    const channelLength = 11.0;
-    const channelDepth = 1.2;
-
-    // Dark Contrast Channel Floor (z = -0.6)
-    const floorGeom = new THREE.BoxGeometry(channelWidth, channelLength, 0.4);
-    const floorMesh = new THREE.Mesh(floorGeom, troughFloorMat);
-    floorMesh.position.set(0, -1.5, -0.6);
-    channelGroup.add(floorMesh);
-
-    // Dark Channel Sidewalls
-    const wallL = new THREE.Mesh(new THREE.BoxGeometry(0.4, channelLength, channelDepth), troughWallMat);
-    wallL.position.set(-channelWidth/2 - 0.2, -1.5, 0);
-    channelGroup.add(wallL);
-
-    const wallR = new THREE.Mesh(new THREE.BoxGeometry(0.4, channelLength, channelDepth), troughWallMat);
-    wallR.position.set(channelWidth/2 + 0.2, -1.5, 0);
-    channelGroup.add(wallR);
-
-    // Luminous Herringbone Grooves (Directly on dark floor)
-    const grooveCount = 8;
-    for (let i = 0; i < grooveCount; i++) {
-      const y = 2.5 - i * 1.1;
-
-      const armL = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.3, 0.3), grooveRibMat);
-      armL.position.set(-0.75, y, -0.4);
-      armL.rotation.z = 0.65;
-      channelGroup.add(armL);
-
-      const armR = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 0.3), grooveRibMat);
-      armR.position.set(0.95, y - 0.22, -0.4);
-      armR.rotation.z = -0.65;
-      channelGroup.add(armR);
+function stepParticle(p) {
+  if (p.phase === 1) {                                   // inlet tube
+    p.s += V * 1.1 / curveLen;
+    if (p.s >= 1) {
+      p.phase = 2;
+      p.x = (p.side === 0 ? -1 : 1) * (0.04 + Math.random() * 0.66);
+      p.z = 0.03 + Math.random() * 0.44; p.y = G.chanTop - 0.05; p.travel = 0;
+      return stepParticle(p);
     }
-
-    // -------------------------------------------------------------
-    // (D) Teardrop Shear Pillars (Inside Flow Path)
-    // -------------------------------------------------------------
-    const pShape = new THREE.Shape();
-    pShape.absarc(0, 0, 0.28, 0, Math.PI, false);
-    pShape.lineTo(0, -0.55);
-    pShape.closePath();
-
-    const pExtrude = { depth: 0.9, bevelEnabled: false };
-    const pGeom = new THREE.ExtrudeGeometry(pShape, pExtrude);
-    pGeom.center();
-
-    const pRows = 3;
-    for (let r = 0; r < pRows; r++) {
-      const yRow = -7.5 - r * 1.5;
-      const count = (r % 2 === 0) ? 3 : 2;
-      const spacing = 1.25;
-      const startX = (r % 2 === 0) ? -spacing : -spacing/2;
-
-      for (let c = 0; c < count; c++) {
-        const pillar = new THREE.Mesh(pGeom, pillarMat);
-        pillar.position.set(startX + c * spacing, yRow, -0.15);
-        channelGroup.add(pillar);
-      }
+    const c = curves[p.side], pt = c.getPointAt(p.s); c.getTangentAt(p.s, tan);
+    p.x = pt.x + (-tan.y) * p.o1; p.y = pt.y + tan.x * p.o1; p.z = pt.z + p.o2;
+  } else if (p.phase === 2) {                            // SHM channel
+    const ux = 2 * p.x / G.w, uz = 4 * p.z * (G.h - p.z) / (G.h * G.h);
+    const f = 0.3 + 1.4 * (1 - ux * ux) * uz;            // slow near walls
+    const dy = V * f, k = halfIndex(p.y);
+    if (k >= 0) { advect(p, dy, k); p.travel += dy; }
+    p.y -= dy;
+    p.prog = Math.min(1, Math.pow(p.travel / G.grooveLen, 1.4));
+    if (p.y <= G.mixEnd) { p.phase = 3; p.rx = 2 * p.x / G.w; p.rz = (p.z - zc) / zc; }
+  } else if (p.phase === 3) {                            // nozzle
+    p.y -= V * 1.6;
+    const t = (G.mixEnd - p.y) / (G.mixEnd - G.nozBot), r = 0.5 - 0.2 * t;
+    p.x = p.rx * r * 0.85; p.z = zc + p.rz * r * 0.85; p.prog = 1;
+    if (p.y <= G.nozBot) {
+      p.phase = 4; p.age = 0; p.sx = p.x; p.sy = p.y; p.sz = p.z;
+      const rr = 2.1 * Math.cbrt(Math.random()), th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random());
+      p.tx = rr * Math.sin(ph) * Math.cos(th); p.ty = G.tissueY + rr * Math.cos(ph); p.tz = zc + rr * Math.sin(ph) * Math.sin(th);
     }
+  } else {                                               // into the bead
+    p.age += 1 / 70; const t = Math.min(1, p.age), e = 1 - (1 - t) * (1 - t);
+    p.x = p.sx + (p.tx - p.sx) * e; p.y = p.sy + (p.ty - p.sy) * e; p.z = p.sz + (p.tz - p.sz) * e;
+    if (p.age > 1.6) spawn(p);
+  }
+}
+function colorOf(p) {
+  if (p.side === 0) { tmpC.copy(cA).lerp(cG, p.prog); }
+  else { tmpC.copy(cB).lerp(cBp, p.prog); if (p.phase === 4) tmpC.lerp(cG, Math.min(1, p.age / 1.6)); }
+  return tmpC;
+}
+function writeParticles() {
+  for (let i = 0; i < N; i++) {
+    const p = P[i];
+    tmpM.makeTranslation(p.x, p.y, p.z); pMesh.setMatrixAt(i, tmpM); pMesh.setColorAt(i, colorOf(p));
+  }
+  pMesh.instanceMatrix.needsUpdate = true;
+  if (pMesh.instanceColor) pMesh.instanceColor.needsUpdate = true;
+}
+for (let n = 0; n < 1400; n++) P.forEach(stepParticle); // warm-up so the flow is already developed
 
-    // -------------------------------------------------------------
-    // (E) Bottom Nozzle & Active Silicone Slit Valve
-    // -------------------------------------------------------------
-    const valveMesh = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.18, 16, 32), valveMat);
-    valveMesh.position.set(0, -17.5, 0);
-    valveMesh.rotation.x = Math.PI / 2;
-    assembly.add(valveMesh);
+// =====================================================================
+// 6. CROSS-SECTION INSET (deterministic map of 6000 tracers)
+// =====================================================================
+const XS = { snaps: [] };
+(function computeXS() {
+  const cols = 120, rows = 50, pts = [];
+  for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+    const x = -G.w / 2 + (i + 0.5) / cols * G.w, z = (j + 0.5) / rows * G.h;
+    pts.push({ x, z, side: x < 0 ? 0 : 1 });
+  }
+  const snap = () => pts.map(p => [p.x, p.z]);
+  XS.side = pts.map(p => p.side); XS.snaps.push(snap());
+  const steps = 160, dy = G.halfLen / steps;
+  for (let k = 0; k < G.halves; k++) { for (let s = 0; s < steps; s++) pts.forEach(p => advect(p, dy, k)); XS.snaps.push(snap()); }
+})();
+const xsCanvas = document.getElementById('xs-canvas'), xsCtx = xsCanvas.getContext('2d');
+const xsSlider = document.getElementById('xs-slider');
+function striation(L) { return Math.min(G.w / 2, G.w * Math.exp(-L / (STROOCK_A * G.w))) * 1000; } // µm
+function drawXS() {
+  const k = +xsSlider.value, dpr = Math.min(devicePixelRatio, 2);
+  const Wc = 348, Hc = 150; xsCanvas.width = Wc * dpr; xsCanvas.height = Hc * dpr;
+  const c = xsCtx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, Wc, Hc);
+  const pal = palette(), sc = 210, ox = (Wc - G.w * sc) / 2, oy = 22, H = G.h * sc;
+  const hex = n => '#' + n.toString(16).padStart(6, '0');
+  c.fillStyle = isDay ? '#ffffff' : '#0b1220'; c.fillRect(ox, oy, G.w * sc, H);
+  const snap = XS.snaps[k];
+  for (let i = 0; i < snap.length; i++) {
+    c.fillStyle = XS.side[i] === 0 ? hex(pal.A) : hex(pal.B);
+    c.fillRect(ox + (snap[i][0] + G.w / 2) * sc - 0.9, oy + H - snap[i][1] * sc - 0.9, 1.8, 1.8);
+  }
+  c.strokeStyle = isDay ? '#334155' : '#94a3b8'; c.lineWidth = 1.2; c.strokeRect(ox, oy, G.w * sc, H);
+  c.fillStyle = isDay ? '#1e293b' : '#64748b'; c.fillRect(ox, oy + H, G.w * sc, 5);           // grooved floor
+  c.font = '700 10px sans-serif'; c.fillStyle = isDay ? '#475569' : '#94a3b8';
+  c.fillText('上蓋（平滑）', ox, oy - 6); c.fillText('底面：人字凹槽驅動橫向流', ox, oy + H + 17);
+  if (k < G.halves) {                                    // next vortex pair
+    const xa = (k % 2 === 0) ? -G.w / 6 : G.w / 6, px = ox + (xa + G.w / 2) * sc;
+    c.setLineDash([4, 4]); c.strokeStyle = '#e11d48'; c.beginPath(); c.moveTo(px, oy); c.lineTo(px, oy + H); c.stroke(); c.setLineDash([]);
+    c.font = '700 20px sans-serif'; c.fillStyle = '#e11d48';
+    c.fillText('↻', ox + ((xa - G.w / 2) / 2 + G.w / 2) * sc - 8, oy + H / 2 + 7);
+    c.fillText('↺', ox + ((xa + G.w / 2) / 2 + G.w / 2) * sc - 8, oy + H / 2 + 7);
+  }
+  const L = k * G.halfLen, s = striation(L), tIon = Math.pow(s * 1e-6, 2) / 1e-9;
+  document.getElementById('xs-cap').innerHTML =
+    `第 <b>${k}</b> / 8 個半週期 · 距溝槽起點 <b>${L.toFixed(1)} mm</b><br>` +
+    `估算條紋厚度 s ≈ <b>${s.toFixed(0)} µm</b> → 小離子擴散平衡 s²/D ≈ <b>${tIon < 1 ? tIon.toFixed(2) : tIon.toFixed(0)} s</b>` +
+    (k === 0 ? '（初始：兩相各佔半寬）' : '') + (k < 8 ? '<br>紅虛線＝下一段渦旋分界（頂點位置）' : '<br>✅ 出口：條紋已薄到 pH 可在 0.2 s 內平衡');
+}
+xsSlider.addEventListener('input', drawXS);
 
-    // ==============================================================================
-    // High-Contrast Dynamic Fluid Particles
-    // ==============================================================================
-    const particleCount = 320;
-    const particleGroup = new THREE.Group();
-    assembly.add(particleGroup);
+// =====================================================================
+// 7. STEP CONTENT (verified)
+// =====================================================================
+const metrics = rows => rows.map(([a, b]) => `<div class="row"><span>${a}</span><strong>${b}</strong></div>`).join('');
+const steps = [
+  {
+    title: '① 入口：雙注射筒 + 等體積入口流道',
+    chips: [['ok', '✅ 1:1 由推桿聯動排量決定'], ['bad', '❌ 撤回：縮頸孔「保證 1:1」'], ['fix', '⚠️ 真正風險：啟動前後到達差']],
+    desc: '兩支同內徑注射筒以推桿聯動，每推進 1 mm 排出相同體積 → 配比由幾何「排量」鎖定。入口流道改為左右對稱、等長等徑，讓兩相同時抵達匯流點。',
+    sci: `<ul>
+      <li>舊版宣稱 Ø0.35 / Ø0.80 使流阻相等：但 <span class="f">(0.80/0.35)⁴ = 27.3 ≠ μA/μB = 50</span>數字本身不成立；且推桿聯動時，流阻只改變兩筒「壓力」，不改變排出體積。</li>
+      <li>真正造成配比誤差的是<b>暫態</b>：膠塞受壓縮、筒內氣泡、兩路入口死體積不同 → 一開始某一相先出來（lead/lag）。</li>
+      <li>對策：等長等徑入口（各 ≈ ${(curveLen * Math.PI * 0.16).toFixed(1)} µL）、使用前排氣 prime、捨棄最初約 0.1 mL。</li>
+      <li>入口壓降 &lt; 2 kPa，相對於推注總壓可忽略；水相 Re ≈ 200，仍是層流。</li></ul>`,
+    m: [['注射筒（假設）', '3 mL ×2，ID 8.66 mm'], ['入口流道', 'Ø0.8 mm × ' + curveLen.toFixed(1) + ' mm ×2'], ['A 相黏度', '未實測（假設 5–50 cP）'], ['配比控制', '推桿聯動（機械）']],
+    diff: '移除「縮頸阻尼孔」；改為對稱等體積入口；加入注射筒與聯動推桿以正確表達配比來源。',
+    cam: [34, 46, 74], tgt: [0, 40, 0], xs: false
+  },
+  {
+    title: '② SHM 人字形凹槽混合流道',
+    chips: [['ok', '✅ 層流 → 需混沌平流（方向正確）'], ['bad', '❌ 舊版 Re≈0.15、8 mm 溝槽'], ['fix', '⚠️ 尺寸已依 Stroock 比例重新設計']],
+    desc: '流道 1.5 × 0.5 mm；底面凹刻 48 條非對稱人字槽，每 6 條（3.6 mm）頂點位置左右交替，產生「交替的反向雙渦旋」，把兩相反覆拉伸、折疊成薄層。',
+    sci: `<ul>
+      <li>重算 Re：<span class="f">Re = ρ·U·Dh / μ ≈ 20（混合液）～ 200（水相）</span>舊版的 0.15 錯誤，但結論不變：遠低於紊流 → 不會自然混合。</li>
+      <li>Stroock 2002 的有效條件是溝槽深/流道高 ≈ 0.2–0.3；舊版 80 µm / 1 mm = <b>0.08</b>，且只有 8 mm，依比例推估出口條紋仍約 1 mm（幾乎未混合）。</li>
+      <li>新版：深 0.15 / 高 0.5 = <b>0.30</b>；以 Stroock 數據外推 <span class="f">s(L) ≈ w · exp(−L / 4.1w)</span>L = 28.8 mm → s ≈ <b>14 µm</b>。</li>
+      <li>注意：外推假設兩相黏度相同；50:1 黏度比會降低效率 → 必須用染色／指示劑實驗確認（見步驟 5）。</li></ul>`,
+    m: [['流道截面', '1.5 × 0.5 mm'], ['凹槽', '深 0.15 · 寬 0.25 · 45° · 間距 0.6'], ['半週期 / 總長', '8 × 3.6 = 28.8 mm'], ['Pe（離子, D=10⁻⁹）', '≈ 1.3 × 10⁵'], ['出口條紋（估算）', '≈ 14 µm'], ['流經時間', '≈ 0.11 s @ 0.2 mL/s']],
+    diff: '溝槽由「表面凸條」改為真正凹刻；深寬比修正為 0.30；混合段由 8 mm 加長為 28.8 mm；新增截面視窗觀察條紋形成。',
+    cam: [3.5, 24.5, 11], tgt: [0, 26, 0], xs: true, xsK: 2
+  },
+  {
+    title: '③ 化學觸發：pH 躍遷（只需小離子擴散）',
+    chips: [['ok', '✅ 硫醇去質子化機制成立'], ['fix', '⚠️ 倍率修正：≈575×，非 >1000×'], ['bad', '❌ 撤回：剪切拉伸 PEG 鏈']],
+    desc: 'PEG-SG 與 PEG-SH 都已在 A 筒；B 筒只提供鹼。混合的任務只是把 B 的小離子送進 A 的薄層——不需要高分子互相擴散才開始反應。',
+    sci: `<ul>
+      <li><span class="f">−SH ⇌ −S⁻ + H⁺（pKa ≈ 8.8，PEG-硫醇實際 8.5–10）</span>S⁻ 比例：pH 6.0 → 0.16 %；pH 9.0 → 61 %；pH 9.8 → 91 %（≈ 575 倍）。</li>
+      <li>小離子 D ≈ 10⁻⁹ m²/s，條紋 14 µm 時 <span class="f">t ≈ s²/D ≈ 0.2 s</span>→ A 層在出口附近就開始交聯。B 層（純緩衝液）之後靠 PEG 擴散（D≈6×10⁻¹¹）在約 3 s 內填滿。</li>
+      <li>❌ 舊版「微柱剪切 &gt;1200 s⁻¹ 讓 PEG 線團拉直」：10–20 kDa PEG 鬆弛時間僅 10⁻⁸–10⁻⁷ s，Wi ≈ 10⁻⁵–10⁻³ ≪ 1，不會發生；淚滴微柱已移除。</li>
+      <li>⚠️ 高 pH 也加速 NHS 酯水解（與交聯競爭），最終 pH 需要「夠高但不過高」。</li>
+      <li>💡 推論：16 節牙科螺旋混合頭理論上也能把條紋壓得很薄。若仍需約 10 s，瓶頸很可能在<b>化學</b>（最終 pH／緩衝容量／活性酯已水解／硫醇氧化），而非混合。</li></ul>`,
+    m: [['S⁻ 比例 pH 6 → 9.8', '0.16 % → 91 %'], ['pH 平衡時間（估）', '≈ 0.2 s'], ['PEG 填滿 B 層（估）', '≈ 3 s'], ['Wi（剪切 3200 s⁻¹）', '≈ 10⁻³（無拉伸）'], ['最終 pH', '未實測 → 必測']],
+    diff: '移除淚滴微柱與「Coil-to-Stretch」說法；新增「只需小離子擴散」的正確機制；倍率由 >1000× 修正為 ≈575×。',
+    cam: [5.5, 13, 9], tgt: [0, 13, 0], xs: true, xsK: 8
+  },
+  {
+    title: '④ 出口、推力與操作限制',
+    chips: [['ok', '✅ 滯留體積 ≈ 38 µL（與舊版相近）'], ['ok', '✅ 推力很小，單手可推'], ['bad', '❌ 撤回：「絕不堵槍」']],
+    desc: '流道末端漸縮為 Ø0.6 mm 出口，可再接噴霧頭或延長管。選配鴨嘴閥只用來防止滴漏。',
+    sci: `<ul>
+      <li>滯留體積：入口 9 + 流道 22 + 凹槽 4 + 出口 2 ≈ <b>38 µL</b>（不含 Luer 接頭內腔）。</li>
+      <li>壓降 <span class="f">ΔP = 12μLQ / [w h³ (1 − 0.63 h/w)] ≈ 5 kPa（10 cP）～ 23 kPa（50 cP）</span>兩支 3 mL 筒的流體推力 &lt; 3 N，主要阻力反而是膠塞摩擦（約 5–10 N）。</li>
+      <li>❌ 舊版「十字閥讓 Stop-and-Go 絕不堵槍」：停推後，管內已混合的液體會在數秒內於流道中成膠，閥門無法阻止；暫停超過成膠時間就必須換混合頭（原廠產品亦同）。</li>
+      <li>流道內壁面剪切約 3200 s⁻¹，對 PEG 無破壞性。</li></ul>`,
+    m: [['出口內徑', 'Ø0.6 mm'], ['總滯留體積', '≈ 38 µL'], ['壓降（10 / 50 cP）', '≈ 5 / 23 kPa'], ['流體推力', '< 3 N（+膠塞摩擦）'], ['暫停上限', '< 成膠時間，否則換頭']],
+    diff: '移除「Stop-and-Go 不堵」宣稱；鴨嘴閥降為選配防滴；新增壓降與推力計算。',
+    cam: [9, -2, 15], tgt: [0, -3, 0], xs: false
+  },
+  {
+    title: '⑤ 驗證結論與下一步實驗',
+    chips: [['tip', '🧪 先驗證瓶頸，再優化結構'], ['fix', '⚠️ 所有數值為量級估算，非 CFD'], ['tip', '⚖️ 專利需以原文 claims 確認']],
+    desc: '這一版把「可以被計算證明」與「需要實驗證明」的部分分開。建議依下列順序驗證，每一步都能用少量樣品完成。',
+    sci: `<table class="t">
+      <tr><th>#</th><th>實驗</th><th>判讀</th></tr>
+      <tr><td>1</td><td><b>預混對照</b>：A、B 各 100 µL 在管中 1 s 內快速吸吐混合，量成膠時間（倒置法）</td><td>≈10 s → 化學限制，換混合頭沒用；≪10 s → 混合限制</td></tr>
+      <tr><td>2</td><td><b>最終 pH</b>：不加 PEG，S-buffer : T-buffer = 1:1 混合後量 pH</td><td>確認是否達到配方目標</td></tr>
+      <tr><td>3</td><td><b>簡易黏度</b>：1 mL 針筒＋固定針頭＋固定砝碼，量排空時間；以甘油水溶液標準品校正</td><td>取代假設的 50 cP</td></tr>
+      <tr><td>4</td><td><b>pH 指示劑可視化</b>：A 相加 thymolphthalein（pH 9.3–10.5 變藍）或 phenolphthalein（8.2–10 變粉紅），用透明樹脂列印流道</td><td>直接看到 pH 在第幾個半週期跳升</td></tr>
+      <tr><td>5</td><td><b>列印可行性</b>：同時印凹槽深 0.10 / 0.15 / 0.20 mm 三版，切開或顯微鏡確認凹槽未被樹脂填平</td><td>選出可重現的最小特徵</td></tr>
+      <tr><td>6</td><td><b>專利（已查 Google Patents）</b>：US6969400B2 實為 Cohesion 的「交聯聚合物組成物」專利，且已到期，並非針筒夾具專利；US6328229B1（1998）已到期；EP2213245B1（Baxter，優先權 2006）狀態 Not-in-force，但其美國延續案（如 US11896939B2、US12629445B2）仍需逐一確認。其餘專利尚未逐件核對。</td><td>請以專利原文獨立項＋專利代理人 FTO 為準，本頁僅供技術討論</td></tr></table>`,
+    m: [['可計算證明', '流態、壓降、滯留體積、pH 化學'], ['需實驗證明', '黏度比影響、成膠瓶頸、列印精度'], ['已撤回宣稱', '3 項（流阻配比、鏈拉伸、不堵槍）'], ['已修正數值', 'Re、溝槽深寬比、混合長度、倍率']],
+    diff: '新增驗證實驗計畫；所有估算公式可在 scratch/verify_design.py 重現。',
+    cam: [48, 40, 78], tgt: [0, 26, 0], xs: true, xsK: 4
+  }
+];
 
-    const particles = [];
-    const sphereGeom = new THREE.SphereGeometry(0.24, 10, 10);
+let currentStep = 0;
+function setStep(i, forceCam = true) {
+  currentStep = i;
+  document.querySelectorAll('.dot').forEach((d, j) => d.classList.toggle('active', j === i));
+  const s = steps[i];
+  document.getElementById('p-title').textContent = s.title;
+  document.getElementById('p-chips').innerHTML = s.chips.map(([c, t]) => `<span class="chip ${c}">${t}</span>`).join('');
+  document.getElementById('p-desc').textContent = s.desc;
+  document.getElementById('p-sci').innerHTML = s.sci;
+  document.getElementById('p-metrics').innerHTML = metrics(s.m);
+  document.getElementById('p-diff').innerHTML = s.diff;
+  if (s.xs !== undefined && xsOn) { if (s.xsK !== undefined) xsSlider.value = s.xsK; drawXS(); }
+  if (forceCam) flyTo(s.cam, s.tgt);
+}
+function flyTo(pos, tgt) {
+  const p0 = camera.position.clone(), t0 = controls.target.clone();
+  const p1 = new THREE.Vector3(...pos), t1 = new THREE.Vector3(...tgt), start = performance.now(), dur = 900;
+  (function tick(now) {
+    const t = Math.min(1, (now - start) / dur), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    camera.position.lerpVectors(p0, p1, e); controls.target.lerpVectors(t0, t1, e);
+    if (t < 1) requestAnimationFrame(tick);
+  })(start);
+}
 
-    for (let i = 0; i < particleCount; i++) {
-      const isA = i < particleCount / 2;
-      const mat = new THREE.MeshBasicMaterial({
-        color: isA ? 0x1d4ed8 : 0xb45309,
-        transparent: true, opacity: 0.98
-      });
-      const p = new THREE.Mesh(sphereGeom, mat);
-      
-      p.userData = {
-        side: isA ? -1 : 1,
-        progress: Math.random(),
-        speed: 0.0035 + Math.random() * 0.002,
-        vortexPhase: Math.random() * Math.PI * 2
-      };
-      particleGroup.add(p);
-      particles.push(p);
-    }
+// =====================================================================
+// 8. THEME + TOOLBAR
+// =====================================================================
+function applyTheme() {
+  const c = palette();
+  scene.background = new THREE.Color(c.bg);
+  M.shell.color.setHex(c.shell); M.shell.opacity = isDay ? 0.22 : 0.16;
+  M.edge.color.setHex(c.edge); M.resin.color.setHex(c.resin);
+  M.floorTop.color.setHex(c.floorTop); M.floorBase.color.setHex(c.floorBase);
+  M.cavity.color.setHex(c.cavity); M.fluidA.color.setHex(c.A); M.fluidB.color.setHex(c.B);
+  M.mixed.color.setHex(c.gel); M.bead.color.setHex(c.gel); M.plunger.color.setHex(c.plunger); M.tissue.color.setHex(c.tissue);
+  cA.setHex(c.A); cB.setHex(c.B); cBp.setHex(c.Bpale); cG.setHex(c.gel);
+  if (grid) scene.remove(grid);
+  grid = new THREE.GridHelper(120, 60, c.grid1, c.grid2); grid.position.y = G.tissueY - 0.05; scene.add(grid);
+  hemi.intensity = isDay ? 0.8 : 0.6;
+  document.body.classList.toggle('light-mode', isDay);
+  document.getElementById('b-theme').textContent = isDay ? '☀️ 白天' : '🌙 夜間';
+  if (xsOn) drawXS();
+}
+function toggleTheme() { isDay = !isDay; applyTheme(); }
+let flowOn = true;
+function toggleFlow() { flowOn = !flowOn; pMesh.visible = flowOn; document.getElementById('b-flow').classList.toggle('on', flowOn); }
+let shellMode = 0;
+function toggleShell() {
+  shellMode = (shellMode + 1) % 3; const b = document.getElementById('b-shell');
+  shellGroup.visible = shellMode !== 2; M.shell.opacity = shellMode === 1 ? 0.55 : (isDay ? 0.22 : 0.16);
+  b.textContent = ['🧊 外殼：半透明', '🧊 外殼：霧面', '🧊 外殼：隱藏'][shellMode]; b.classList.toggle('on', shellMode !== 2);
+}
+let syrOn = true, lblOn = true;
+function refreshLabels() { labels.forEach(l => l.visible = lblOn && (l.userData.group !== 'syr' || syrOn)); }
+function toggleSyr() { syrOn = !syrOn; syrGroup.visible = syrOn; document.getElementById('b-syr').classList.toggle('on', syrOn); refreshLabels(); }
+function toggleLabels() { lblOn = !lblOn; document.getElementById('b-lbl').classList.toggle('on', lblOn); refreshLabels(); }
+let xsOn = true;
+function toggleXS() { xsOn = !xsOn; document.getElementById('xs').style.display = xsOn ? '' : 'none'; document.getElementById('b-xs').classList.toggle('on', xsOn); if (xsOn) drawXS(); }
+function toggleRot() { controls.autoRotate = !controls.autoRotate; controls.autoRotateSpeed = 1.6; document.getElementById('b-rot').classList.toggle('on', controls.autoRotate); }
 
-    function updateParticles() {
-      particles.forEach(p => {
-        p.userData.progress += p.userData.speed;
-        if (p.userData.progress > 1.0) p.userData.progress = 0;
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); labelRenderer.setSize(innerWidth, innerHeight);
+});
 
-        const t = p.userData.progress;
-        let x = 0, y = 0, z = 0;
-        let color = new THREE.Color();
-
-        if (t < 0.28) {
-          const subT = t / 0.28;
-          const curve = p.userData.side === -1 ? curveA : curveB;
-          const pt = curve.getPoint(subT);
-          x = pt.x; y = pt.y; z = pt.z;
-          color.setHex(p.userData.side === -1 ? (isDayMode ? 0x1d4ed8 : 0x2563eb) : (isDayMode ? 0xb45309 : 0xd97706));
-        } else if (t < 0.68) {
-          const subT = (t - 0.28) / 0.40;
-          y = THREE.MathUtils.lerp(3.5, -6.5, subT);
-          
-          const angle = p.userData.vortexPhase + subT * 15.0;
-          const radius = 1.05 * (1.0 - subT * 0.25);
-          
-          const xCenter = (p.userData.side === -1) ? -0.5 : 0.6;
-          x = xCenter + Math.cos(angle) * (radius * 0.65);
-          z = -0.3 + (Math.sin(angle) + 1.0) * 0.25;
-
-          const c1 = new THREE.Color(p.userData.side === -1 ? (isDayMode ? 0x1d4ed8 : 0x2563eb) : (isDayMode ? 0xb45309 : 0xd97706));
-          const cGreen = new THREE.Color(isDayMode ? 0x059669 : 0x10b981);
-          color = c1.lerp(cGreen, subT);
-        } else if (t < 0.88) {
-          const subT = (t - 0.68) / 0.20;
-          y = THREE.MathUtils.lerp(-6.5, -13.5, subT);
-          x = Math.sin(subT * 12 + p.userData.vortexPhase) * 0.7;
-          z = -0.15 + Math.cos(subT * 12 + p.userData.vortexPhase) * 0.2;
-          color.setHex(isDayMode ? 0x047857 : 0x10b981);
-        } else {
-          const subT = (t - 0.88) / 0.12;
-          y = THREE.MathUtils.lerp(-13.5, -23.0, subT);
-          const spread = subT * 3.5;
-          x = Math.sin(p.userData.vortexPhase) * spread;
-          z = Math.cos(p.userData.vortexPhase) * spread;
-          color.setHex(isDayMode ? 0x065f46 : 0x059669);
-        }
-
-        p.position.set(x, y, z);
-        p.material.color.copy(color);
-      });
-    }
-
-    // ==============================================================================
-    // Comprehensive Scientific Analysis Data per Step
-    // ==============================================================================
-    const stepsData = [
-      {
-        title: "① 雙 Luer 接口與主動流阻平衡",
-        desc: "A 筒（高黏度 PEG 溶液，~50 cps）經由寬通徑管道導入；B 筒（水狀 T-buffer，~1 cps）經由縮頸阻尼孔導入。主動平衡兩相流阻，確保在手動推注時精確維持 1:1 體積比。",
-        scienceHtml: `
-          <strong>【水力流阻平衡理論 (Hagen-Poiseuille Law)】</strong><br>
-          流阻方程：<span class="formula">R_h = ΔP / Q = (128 · μ · L) / (π · D⁴)</span>
-          • 黏度比：μ(PEG) / μ(T-buffer) ≈ 50 / 1<br>
-          • 若通道孔徑相同，低黏度 T-buffer 會以 50 倍流速暴衝，造成化學計量比 (Stoichiometry) 崩潰。<br>
-          • <strong>科學解法</strong>：將 T-buffer 縮頸至 Φ0.35mm，使 (D_A / D_B)⁴ ≈ (0.8 / 0.35)⁴ ≈ 27.2，補償了黏度差，達成 <strong>Q_A ≈ Q_B (1:1 體積比同步)</strong>。
-        `,
-        metrics: [
-          { label: "PEG 通道直徑 (D_A)", val: "Φ 0.80 mm" },
-          { label: "T-buffer 阻尼孔 (D_B)", val: "Φ 0.35 mm" },
-          { label: "水力流阻補償比", val: "~ 27.2 倍" },
-          { label: "Stoichiometry 誤差", val: "< ± 3.5%" }
-        ],
-        tags: ["Hagen-Poiseuille 水力平衡", "ISO 80369-7 接頭", "化學計量比 r=1.0 鎖定"],
-        camPos: { x: 0, y: 14, z: 32 },
-        target: { x: 0, y: 10, z: 0 }
-      },
-      {
-        title: "② SHM 底面人字形微溝槽 (混沌混練區)",
-        desc: "45° 夾角、深度 80 μm 的非對稱人字形微溝槽直接模塑於中空流道底面。在低雷諾數下激發強烈三維「混沌雙渦旋」，在 0.05 秒內將兩相拉伸折疊，打破層流擴散障礙。",
-        scienceHtml: `
-          <strong>【低雷諾數微流體混沌平流 (Chaotic Advection)】</strong><br>
-          微流體雷諾數：<span class="formula">Re = (ρ · v · D_h) / μ ≪ 1.0 (純層流無湍流)</span>
-          分子擴散時間公式：<span class="formula">t_diff ≈ w² / D ≈ (2.4mm)² / 10⁻¹⁰ ≈ 15~20 秒 (極慢)</span>
-          • <strong>科學機制</strong>：45° 非對稱溝槽引發橫向微壓差 ∇P_⊥，產生一對反向旋轉的三維「混沌雙渦旋 (Double Vortices)」。<br>
-          • 流體層厚度呈指數級縮小：s(t) = s₀ · e^(-λt)，將分子擴散距離壓縮至 <strong>δ < 15 μm</strong>，使擴散混勻時間從 15 秒驟降至 <strong>< 0.05 秒</strong>！
-        `,
-        metrics: [
-          { label: "流道雷諾數 Re", val: "≈ 0.15 (微層流)" },
-          { label: "特徵擴散距離 δ", val: "< 15 μm (壓縮 160倍)" },
-          { label: "渦旋混練時間", val: "< 0.05 秒 (瞬時)" },
-          { label: "專利規避性", val: "100% 避開 3D 燒結多孔" }
-        ],
-        tags: ["Chaotic Advection 混沌平流", "指數級層流減薄", "三維螺旋雙渦旋"],
-        camPos: { x: 0, y: -1, z: 22 },
-        target: { x: 0, y: -1.5, z: 0 }
-      },
-      {
-        title: "③ 淚滴形微阻流島矩陣 (高剪切撕裂與 pH 躍遷)",
-        desc: "3 排交錯排列的淚滴形微柱直接立於流道內部（狹縫 120 μm），迫使流體穿過狹縫產生超高剪切力，瞬間撕裂 4-Arm PEG 分子纏結，引發瞬時 pH 躍遷 (pH 6.0 ➔ 9.8)。",
-        scienceHtml: `
-          <strong>【高分子鏈伸展與親核反應動力學】</strong><br>
-          微狹縫壁面剪切速率：<span class="formula">γ̇ = 6Q / (w · h²) > 1200 s⁻¹ (強拉伸)</span>
-          硫醇去質子化化學平衡：<span class="formula">-SH ⇌ -S⁻ + H⁺ (pKa ≈ 8.8)</span>
-          • <strong>科學機制</strong>：微柱狹縫的高剪切力使高分子發生「線團-伸展轉變 (Coil-to-Stretch Transition)」，暴露活性官能基。<br>
-          • T-buffer 鹼性離子微觀瞬時注入，使 pH 由 6.0 躍遷至 9.8，活性硫醇陰離子 [-S⁻] 濃度<strong>暴增 1000 倍以上</strong>！進攻 PEG-SG 活性酯，實現 <strong>2~3 秒內完成共價網絡交聯</strong>！
-        `,
-        metrics: [
-          { label: "狹縫剪切速率 γ̇", val: "> 1,200 s⁻¹" },
-          { label: "pH 躍遷範圍", val: "pH 6.0 ➔ 9.8" },
-          { label: "[-S⁻] 活性親核態濃度", val: "提升 > 1,000 倍" },
-          { label: "成膠凝固時間", val: "2 ~ 3 秒 (告別水水延遲)" }
-        ],
-        tags: ["Coil-to-Stretch 鏈伸展", "pH 躍遷催化", "硫醇-活性酯極速交聯"],
-        camPos: { x: 0, y: -8, z: 20 },
-        target: { x: 0, y: -8.5, z: 0 }
-      },
-      {
-        title: "④ 漸縮噴嘴與彈性自淨微閥 (瞬時成膠與防堵)",
-        desc: "混合完成的均勻凝膠在離開噴嘴 2~3 秒內瞬時固化。出口配備矽膠彈性閥門，停止推注時回彈刮除殘膠，實現 Stop-and-Go 絕不堵塞。",
-        scienceHtml: `
-          <strong>【微流控死腔控制與動態閥彈性自淨】</strong><br>
-          流道滯留死腔公式：<span class="formula">V_dead = ∫ A(z) dz < 35 μL (極低耗損)</span>
-          微閥動態開閉力學：<span class="formula">P_fluid > P_crack ≈ 12 kPa (推注張開 / 停注回彈)</span>
-          • <strong>科學機制</strong>：傳統螺旋混合頭死腔高達 150~300 μL，暫停時殘膠在腔內交聯造成堵塞。<br>
-          • 本設計將死腔壓縮至 35 μL 以下；矽膠十字切口閥在推注停止時瞬時閉合，<strong>物理刮除噴嘴外側膠滴</strong>並隔絕空氣，實現手術中多次「暫停與重啟 (Stop-and-Go)」不堵槍。
-        `,
-        metrics: [
-          { label: "噴嘴出料孔徑", val: "Φ 1.0 mm" },
-          { label: "總內部滯留死腔", val: "< 35 μL (微升級)" },
-          { label: "微閥開裂壓 P_crack", val: "≈ 12 kPa" },
-          { label: "Stop-and-Go 性能", val: "支援多次重啟不堵槍" }
-        ],
-        tags: ["超低死腔積液 (<35 μL)", "動態彈性自淨微閥", "Stop-and-Go 抗堵塞"],
-        camPos: { x: 0, y: -16, z: 24 },
-        target: { x: 0, y: -16, z: 0 }
-      }
-    ];
-
-    let currentStep = 0;
-    function setStep(index) {
-      currentStep = index;
-      document.querySelectorAll('.step-dot').forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === index);
-      });
-
-      const data = stepsData[index];
-      document.getElementById('panel-title').innerText = data.title;
-      document.getElementById('panel-desc').innerText = data.desc;
-      
-      document.getElementById('panel-science').innerHTML = data.scienceHtml;
-
-      const metricsContainer = document.getElementById('panel-metrics');
-      metricsContainer.innerHTML = '';
-      data.metrics.forEach(m => {
-        const row = document.createElement('div');
-        row.className = 'metric-row';
-        row.innerHTML = `<span>${m.label}:</span><strong>${m.val}</strong>`;
-        metricsContainer.appendChild(row);
-      });
-
-      const tagsContainer = document.getElementById('panel-tags');
-      tagsContainer.innerHTML = '';
-      data.tags.forEach(t => {
-        const span = document.createElement('span');
-        span.className = 'feature-tag';
-        span.innerText = t;
-        tagsContainer.appendChild(span);
-      });
-
-      gsapCamera(data.camPos, data.target);
-    }
-
-    function gsapCamera(pos, target) {
-      const startTime = performance.now();
-      const startPos = camera.position.clone();
-      const startTarget = controls.target.clone();
-      const duration = 750;
-
-      function animateCam(time) {
-        const elapsed = time - startTime;
-        const p = Math.min(elapsed / duration, 1.0);
-        const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
-
-        camera.position.lerpVectors(startPos, new THREE.Vector3(pos.x, pos.y, pos.z), ease);
-        controls.target.lerpVectors(startTarget, new THREE.Vector3(target.x, target.y, target.z), ease);
-
-        if (p < 1.0) {
-          requestAnimationFrame(animateCam);
-        }
-      }
-      requestAnimationFrame(animateCam);
-    }
-
-    // ==============================================================================
-    // Toolbar Controls
-    // ==============================================================================
-    function toggleTheme() {
-      isDayMode = !isDayMode;
-      document.body.classList.toggle('light-mode', isDayMode);
-      const btn = document.getElementById('btn-theme');
-
-      if (isDayMode) {
-        btn.innerText = "☀️ 白天高對比";
-        scene.background = new THREE.Color(0xdbeafe);
-        scene.fog.color = new THREE.Color(0xdbeafe);
-        
-        scene.remove(gridHelper);
-        gridHelper = new THREE.GridHelper(90, 45, 0x94a3b8, 0xcbd5e1);
-        gridHelper.position.y = -24;
-        scene.add(gridHelper);
-
-        ambientLight.intensity = 0.75;
-        keyLight.intensity = 1.25;
-        housingEdgeMat.color.setHex(0x0369a1);
-        housingEdgeMat.opacity = 0.85;
-        housingMat.color.setHex(0x93c5fd);
-        housingMat.opacity = 0.35;
-      } else {
-        btn.innerText = "🌙 暗夜模式";
-        scene.background = new THREE.Color(0x0f172a);
-        scene.fog.color = new THREE.Color(0x0f172a);
-        
-        scene.remove(gridHelper);
-        gridHelper = new THREE.GridHelper(90, 45, 0x334155, 0x1e293b);
-        gridHelper.position.y = -24;
-        scene.add(gridHelper);
-
-        ambientLight.intensity = 0.9;
-        keyLight.intensity = 1.4;
-        housingEdgeMat.color.setHex(0x38bdf8);
-        housingEdgeMat.opacity = 0.45;
-        housingMat.color.setHex(0xe2e8f0);
-        housingMat.opacity = 0.32;
-      }
-    }
-
-    let flowActive = true;
-    function toggleFlow() {
-      flowActive = !flowActive;
-      particleGroup.visible = flowActive;
-      document.getElementById('btn-flow').classList.toggle('active', flowActive);
-    }
-
-    let housingMode = 0;
-    function toggleHousing() {
-      housingMode = (housingMode + 1) % 3;
-      const btn = document.getElementById('btn-housing');
-      if (housingMode === 0) {
-        housingGroup.visible = true;
-        housingMat.opacity = isDayMode ? 0.35 : 0.32;
-        btn.innerText = "🏢 半透明外殼";
-        btn.classList.add('active');
-      } else if (housingMode === 1) {
-        housingGroup.visible = true;
-        housingMat.opacity = 0.88;
-        btn.innerText = "🏢 實體外殼";
-        btn.classList.add('active');
-      } else {
-        housingGroup.visible = false;
-        btn.innerText = "🏢 隱藏外殼 (僅流道)";
-        btn.classList.remove('active');
-      }
-    }
-
-    let autoRotate = false;
-    function toggleAutoRotate() {
-      autoRotate = !autoRotate;
-      controls.autoRotate = autoRotate;
-      controls.autoRotateSpeed = 2.0;
-      document.getElementById('btn-rotate').classList.toggle('active', autoRotate);
-    }
-
-    function resetView() {
-      gsapCamera({ x: 0, y: 4, z: 46 }, { x: 0, y: 0, z: 0 });
-      setStep(0);
-    }
-
-    // Initialize Step 0 Data
-    setStep(0);
-
-    // ==============================================================================
-    // Render Loop
-    // ==============================================================================
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      if (flowActive) updateParticles();
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
+{
+  const q = new URLSearchParams(location.hash.slice(1));
+  if (q.get('theme') === 'dark') isDay = false;
+  applyTheme(); writeParticles(); drawXS();
+  if (q.get('shell')) { shellMode = +q.get('shell') - 1; toggleShell(); }
+  const st = Math.max(0, Math.min(steps.length - 1, (+q.get('step') || 1) - 1));
+  const inst = !!q.get('instant');
+  setStep(st, !inst);
+  if (inst) { const s = steps[st]; camera.position.set(...s.cam); controls.target.set(...s.tgt); }
+}
+(function animate() {
+  requestAnimationFrame(animate);
+  if (flowOn) { P.forEach(stepParticle); writeParticles(); }
+  controls.update(); renderer.render(scene, camera); labelRenderer.render(scene, camera);
+})();
+</script>
 </body>
 </html>

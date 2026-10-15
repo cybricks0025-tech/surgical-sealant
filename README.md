@@ -1,64 +1,42 @@
-# 創新微流控高剪切雙腔注射混合頭 (Surgical Sealant Dual Syringe Mixer)
+# Surgical Sealant 雙腔注射混合頭（v2，已重新驗證）
 
-[![3D Interactive Viewer](https://img.shields.io/badge/3D%20Demo-Live%20Viewer-0284c7?style=for-the-badge&logo=three.js)](https://cybricks0025-tech.github.io/surgical-sealant/)
-[![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
+[3D 線上展示](https://cybricks0025-tech.github.io/surgical-sealant/)
 
-專門為解決 **「高黏度 4-Arm PEG 聚合物溶液 (~50 cps) vs 水狀鹼性 T-buffer (~1 cps) 巨大黏度差」** 量身定制的專利規避型醫療級微流控混合頭。
+針對 PEG-SG／PEG-SH + T-buffer（pH 觸發交聯）雙腔注射系統，設計 3D 列印用的 **SHM（Staggered Herringbone）被動式混合流道**。
 
----
+> **v2 說明**：2026-10 重新驗證後，v1 有數項不成立的宣稱已撤回或修正。所有估算可用 `verify_design.py` 重現。數值皆為**量級估算，非 CFD、非實驗結果**。
 
-## 🌟 核心工程與科學設計亮點
+## 驗證結果摘要
 
-1. **Hagen-Poiseuille 主動水力流阻平衡（進料歧管）**：
-   - PEG 寬通徑 $\Phi 0.80\,\text{mm}$ vs T-buffer 縮頸阻尼孔 $\Phi 0.35\,\text{mm}$。
-   - 幾何孔徑四次方補償了 50 倍黏度差，手動推注時精準鎖定 $1:1$ 體積比（Stoichiometry 誤差 $< \pm 3.5\%$）。
-2. **低雷諾數三維混沌平流（SHM 非對稱人字形微溝槽）**：
-   - 45° 非對稱溝槽引發橫向微壓差 $\nabla P_{\perp}$，激發三維反向「混沌雙渦旋（Double Vortices）」。
-   - 流體層厚度呈指數級減薄 $s(t) = s_0 e^{-\lambda t}$，特徵擴散距離由 $2.4\,\text{mm}$ 壓縮至 $\delta < 15\,\mu\text{m}$，擴散混勻時間從 $15\,\text{s}$ 降至 $<0.05\,\text{s}$。
-   - **★ 100% 規避 Baxter EP2213245B1 3D 多孔燒結晶格專利**。
-3. **高分子鏈拉伸與 pH 躍遷催化（淚滴形微剪切島矩陣）**：
-   - 3 排交錯淚滴微柱構成 $120\,\mu\text{m}$ 狹縫，壁面剪切速率 $\dot{\gamma} > 1200\,\text{s}^{-1}$，觸發高分子 Coil-to-Stretch 鏈伸展。
-   - T-buffer 微觀瞬時注入引發 pH 躍遷（$\text{pH } 6.0 \to 9.8$），活性硫醇陰離子 $[-\text{S}^-]$ 濃度暴增 $>1000$ 倍，**成膠固化時間縮短至 2~3 秒（告別傳統螺旋葉片 10 秒水水分層）**。
-4. **表面張力自淨微閥與超低死腔（漸縮出料噴嘴）**：
-   - 內部滯留死腔體積 $< 35\,\mu\text{L}$。
-   - 矽膠十字彈性微閥在推注停止時彈性回彈（Snap-Back）物理刮除殘膠，支援手術中多次 Stop-and-Go 絕不堵槍。
+| 項目 | v1 宣稱 | v2 驗證結論 |
+|---|---|---|
+| 縮頸孔（Ø0.35 / Ø0.80）保證 1:1 | 流阻補償 50× 黏度差 | ❌ `(0.80/0.35)⁴ = 27.3 ≠ 50`；且推桿聯動時配比由排量決定，流阻只影響壓力。改為對稱等體積入口 |
+| Re ≈ 0.15 | 低雷諾數 | ⚠️ 重算約 20（混合液）～200（水相）。仍為層流，結論不變 |
+| 溝槽 80 µm、混合段 8 mm | SHM 混勻 <0.05 s | ❌ 深寬比 0.08 偏低且過短，外推出口條紋仍約 1 mm。v2：深 0.15／高 0.5 = 0.30、長 28.8 mm → 約 14 µm |
+| 剪切 >1200 s⁻¹ 拉直 PEG 鏈 | Coil-to-stretch | ❌ 10–20 kDa PEG 鬆弛時間 ~10⁻⁸–10⁻⁷ s，Wi ≈ 10⁻⁵–10⁻³ ≪ 1。已移除淚滴微柱 |
+| pH 6→9.8 使 S⁻ 增加 >1000× | | ⚠️ 修正為約 575×（0.16% → 91%，pKa 8.8） |
+| 十字閥「絕不堵槍」 | Stop-and-Go | ❌ 停推後管內仍會成膠，閥門無法阻止；降為選配防滴 |
+| 滯留體積 <35 µL | | ✅ 新幾何約 38 µL |
 
----
+## 專利查核（Google Patents，部分完成）
 
-## 🎮 3D 線上互動展示與操作
+- **US6969400B2**：實為 Cohesion Technologies 的「交聯聚合物組成物」專利（優先權 1995，已到期），**不是**針筒外罩／活塞夾專利。v1 的歸屬錯誤。
+- **US6328229B1**：Cohesion，優先權 1998，Expired。
+- **EP2213245B1**：Baxter，優先權 2006，EP 狀態 Not-in-force；但美國延續案（US11896939B2、US12629445B2 等）狀態與 claims 尚未確認。
+- 其餘專利（US9381005、US6835186、US7135027、US7951108、US7938296、US8074843、US8641661）**尚未逐件核對**。
 
-本專案提供基於 WebGL / Three.js 開發的 3D 互動展示模型：
-👉 **[點此進入 3D 線上展示頁面 (Live Demo)](https://cybricks0025-tech.github.io/surgical-sealant/)**
+本專案不構成法律意見；請以專利原文獨立項與專利代理人的 FTO 為準。
 
-- 支援 360° 自由環景旋轉、平移與滾輪縮放。
-- 支援一鍵切換 **☀️ 白天高對比 CAD 模式** 與 **🌙 暗夜模式**。
-- 即時動態流體粒子模擬（藍色 PEG ＋ 黃色 T-buffer ➔ 綠色瞬時成膠）。
-- 4 步驟一鍵導覽特寫各微流道構造與科學參數解析。
+## 建議的驗證實驗
 
----
+1. 預混對照：A、B 各 100 µL 快速吸吐混合後量成膠時間。≈10 s 代表瓶頸在化學，換混合頭無效。
+2. 混合後最終 pH（不含 PEG）。
+3. 用固定針頭＋砝碼＋甘油標準品量 A 相黏度。
+4. 以 thymolphthalein／phenolphthalein 指示劑配合透明樹脂列印，直接觀察 pH 躍遷位置。
+5. 同時列印凹槽深 0.10／0.15／0.20 mm，確認解析度。
 
-## 📐 3D 列印打樣指南 (SLA / DLP)
+## 檔案
 
-本專案內含開源參數化建模腳本 `mixing_tip_prototype.scad`：
-- **推薦設備**：高精度 SLA / DLP 光固化 3D 列印機（如 Formlabs / Anycubic / Elegoo 等）。
-- **切片參數**：
-  - XY 解析度：$\le 35\,\mu\text{m}$
-  - Z 軸層厚（Layer Height）：$25\,\mu\text{m}$
-  - 擺放角度：以 45° 傾斜朝上擺放（流道內部嚴禁加支撐）。
-- **後處理**：使用注射器以 99.5% IPA 強力沖洗內部微流道 3 次，防止微溝槽黏死，再行 UV 二次固化 5 分鐘。
-
----
-
-## 📄 專案目錄結構
-
-```text
-├── index.html                  # 3D 互動展示模型主入口 (GitHub Pages 部署)
-├── interactive_3d_viewer.html  # 3D 互動展示模型原始網頁
-├── mixing_tip_prototype.scad  # OpenSCAD 參數化 3D CAD 模型源碼 (可輸出 STL)
-└── README.md                   # 專案說明文件
-```
-
----
-
-## 📜 授權協議 (License)
-本專案基於 [MIT License](LICENSE) 授權開源。
+- `index.html`／`interactive_3d_viewer.html`：3D 互動展示（含截面混合視窗，可用 `#step=2&theme=dark` 直接開啟特定步驟）
+- `verify_design.py`：量級估算腳本
+- `mixing_tip_prototype.scad`：v1 的 OpenSCAD 檔，**尚未更新為 v2 幾何**，列印前請勿直接使用

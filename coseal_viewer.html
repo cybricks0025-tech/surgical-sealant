@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MANDATORY: Declare support for both light and dark themes -->
+<meta name="color-scheme" content="light dark">
+<script>
+try {
+  document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem("color-scheme") ?? "light dark";
+} catch (e) {}
+</script>
+<title>雙單管混合裝置 (CoSeal 參考設計 Rev.B) · 3D 互動機構展示與工程藍圖</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<style>
+  :root {
+    --bg-light: #e2e8f0;
+    --bg-dark: #0b1120;
+    --panel-light: rgba(255, 255, 255, 0.94);
+    --panel-dark: rgba(15, 23, 42, 0.92);
+    --box-light: #f1f5f9;
+    --box-dark: rgba(30, 41, 59, 0.82);
+    --text-light: #0f172a;
+    --text-dark: #f8fafc;
+    --sub-light: #334155;
+    --sub-dark: #cbd5e1;
+    --muted-light: #475569;
+    --muted-dark: #94a3b8;
+    --border-light: rgba(2, 132, 199, 0.30);
+    --border-dark: rgba(56, 189, 248, 0.25);
+    --boxb-light: rgba(15, 23, 42, 0.12);
+    --boxb-dark: rgba(255, 255, 255, 0.10);
+    --accent-light: #0284c7;
+    --accent-dark: #38bdf8;
+    --accent-btn-light: #0284c7;
+    --accent-btn-dark: #0284c7;
+    --shadow-light: rgba(15, 23, 42, 0.14);
+    --shadow-dark: rgba(0, 0, 0, 0.55);
+    --scroll-thumb-light: #94a3b8;
+    --scroll-thumb-dark: #475569;
+    --scroll-track-light: #e2e8f0;
+    --scroll-track-dark: #0f172a;
+
+    --bg: var(--bg-light);
+    --panel: var(--panel-light);
+    --box: var(--box-light);
+    --text: var(--text-light);
+    --sub: var(--sub-light);
+    --muted: var(--muted-light);
+    --border: var(--border-light);
+    --boxb: var(--boxb-light);
+    --accent: var(--accent-light);
+    --shadow: var(--shadow-light);
+    --scrollbar-thumb: var(--scroll-thumb-light);
+    --scrollbar-track: var(--scroll-track-light);
+
+    @media (prefers-color-scheme: dark) {
+      --bg: var(--bg-dark);
+      --panel: var(--panel-dark);
+      --box: var(--box-dark);
+      --text: var(--text-dark);
+      --sub: var(--sub-dark);
+      --muted: var(--muted-dark);
+      --border: var(--border-dark);
+      --boxb: var(--boxb-dark);
+      --accent: var(--accent-dark);
+      --shadow: var(--shadow-dark);
+      --scrollbar-thumb: var(--scroll-thumb-dark);
+      --scrollbar-track: var(--scroll-track-dark);
+    }
+
+    &:has(> head > meta[name="color-scheme"][content="dark"]) {
+      color-scheme: dark;
+      --bg: var(--bg-dark);
+      --panel: var(--panel-dark);
+      --box: var(--box-dark);
+      --text: var(--text-dark);
+      --sub: var(--sub-dark);
+      --muted: var(--muted-dark);
+      --border: var(--border-dark);
+      --boxb: var(--boxb-dark);
+      --accent: var(--accent-dark);
+      --shadow: var(--shadow-dark);
+      --scrollbar-thumb: var(--scroll-thumb-dark);
+      --scrollbar-track: var(--scroll-track-dark);
+    }
+
+    &:has(> head > meta[name="color-scheme"][content="light"]) {
+      color-scheme: light;
+      --bg: var(--bg-light);
+      --panel: var(--panel-light);
+      --box: var(--box-light);
+      --text: var(--text-light);
+      --sub: var(--sub-light);
+      --muted: var(--muted-light);
+      --border: var(--border-light);
+      --boxb: var(--boxb-light);
+      --accent: var(--accent-light);
+      --shadow: var(--shadow-light);
+      --scrollbar-thumb: var(--scroll-thumb-light);
+      --scrollbar-track: var(--scroll-track-light);
+    }
+
+    @supports (color: light-dark(white, black)) {
+      --bg: light-dark(var(--bg-light), var(--bg-dark));
+      --panel: light-dark(var(--panel-light), var(--panel-dark));
+      --box: light-dark(var(--box-light), var(--box-dark));
+      --text: light-dark(var(--text-light), var(--text-dark));
+      --sub: light-dark(var(--sub-light), var(--sub-dark));
+      --muted: light-dark(var(--muted-light), var(--muted-dark));
+      --border: light-dark(var(--border-light), var(--border-dark));
+      --boxb: light-dark(var(--boxb-light), var(--boxb-dark));
+      --accent: light-dark(var(--accent-light), var(--accent-dark));
+      --shadow: light-dark(var(--shadow-light), var(--shadow-dark));
+      --scrollbar-thumb: light-dark(var(--scroll-thumb-light), var(--scroll-thumb-dark));
+      --scrollbar-track: light-dark(var(--scroll-track-light), var(--scroll-track-dark));
+    }
+
+    color-scheme: light dark;
+    accent-color: var(--accent);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  @supports not (scrollbar-color: auto) {
+    .scroller::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scroller::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+    .scroller::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+  body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; }
+  #canvas { position: absolute; inset: 0; z-index: 1; }
+
+  /* Top Header */
+  #header {
+    position: absolute; top: 14px; left: 18px; z-index: 10; max-width: 44vw;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px 16px; box-shadow: 0 10px 30px var(--shadow); backdrop-filter: blur(12px);
+  }
+  .title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  #header h1 { font-size: 17.5px; font-weight: 800; letter-spacing: 0.2px; }
+  .badge { padding: 2px 9px; border-radius: 16px; font-size: 11px; font-weight: 700; color: #fff; background: #059669; }
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700;
+    color: var(--accent); text-decoration: none; border: 1px solid var(--border);
+    padding: 2px 9px; border-radius: 14px; background: var(--box); transition: 0.15s;
+  }
+  .nav-link:hover { background: #0284c7; color: #fff; }
+  #legend { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 11.5px; color: var(--sub); font-weight: 600; }
+  #legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+
+  /* Center Top Stage Switcher */
+  #stage-nav {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 6px; background: var(--panel); padding: 6px 10px; border-radius: 26px;
+    border: 1px solid var(--border); box-shadow: 0 10px 28px var(--shadow); backdrop-filter: blur(12px);
+  }
+  .stage-btn {
+    border: 1px solid transparent; background: transparent; color: var(--muted);
+    padding: 6px 13px; border-radius: 20px; font-weight: 800; font-size: 12.5px;
+    cursor: pointer; transition: 0.18s; white-space: nowrap;
+  }
+  .stage-btn:hover { color: var(--text); border-color: var(--border); }
+  .stage-btn.active { background: #0284c7; color: #fff; box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35); }
+
+  /* Left Control Panel (Kinematics & Section Sliders) */
+  #ctrl-panel {
+    position: absolute; left: 18px; bottom: 78px; z-index: 10; width: 356px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 15px 16px; box-shadow: 0 14px 36px var(--shadow); backdrop-filter: blur(14px);
+    max-height: calc(100vh - 210px); overflow-y: auto; scrollbar-gutter: stable;
+  }
+  #ctrl-panel h4 { font-size: 13.5px; font-weight: 800; color: var(--accent); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-group { margin-bottom: 11px; }
+  .ctrl-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--sub); margin-bottom: 4px; }
+  .ctrl-label span.val { color: var(--accent); font-family: "SF Mono", Menlo, monospace; }
+  input[type="range"] { width: 100%; cursor: pointer; height: 6px; }
+  .quick-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .mini-btn {
+    flex: 1; background: var(--box); border: 1px solid var(--boxb); color: var(--text);
+    padding: 5px 8px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: 0.15s;
+  }
+  .mini-btn:hover, .mini-btn.on { background: #0284c7; color: #fff; border-color: #0284c7; }
+
+  /* Right Engineering Info Panel */
+  #info {
+    position: absolute; top: 76px; right: 18px; width: 420px; z-index: 10;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 18px; box-shadow: 0 18px 44px var(--shadow);
+    max-height: calc(100vh - 156px); overflow-y: auto; scrollbar-gutter: stable; backdrop-filter: blur(14px);
+  }
+  #info h3 { font-size: 16.5px; color: var(--accent); margin-bottom: 8px; font-weight: 800; }
+  #info p { font-size: 12.8px; color: var(--sub); line-height: 1.62; margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: 1px solid; }
+  .ok { color: #059669; background: rgba(16, 185, 129, 0.12); border-color: #10b981; }
+  .fix { color: #d97706; background: rgba(245, 158, 11, 0.12); border-color: #f59e0b; }
+  .tip { color: #0284c7; background: rgba(56, 189, 248, 0.12); border-color: #38bdf8; }
+  .sec { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: 0.5px; color: var(--muted); margin: 12px 0 6px; border-left: 3px solid var(--accent); padding-left: 7px; }
+  .box { background: var(--box); border: 1px solid var(--boxb); border-radius: 10px; padding: 10px 12px; font-size: 12.2px; line-height: 1.6; color: var(--text); }
+  .box ul { padding-left: 16px; } .box li { margin: 4px 0; }
+  .box b { color: var(--accent); }
+  .row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--boxb); color: var(--muted); }
+  .row strong { color: var(--text); text-align: right; }
+
+  .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .cta-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 10px; border-radius: 10px; font-size: 12.5px; font-weight: 800;
+    cursor: pointer; border: 1px solid var(--border); background: var(--box); color: var(--text);
+    text-decoration: none; transition: 0.18s; text-align: center;
+  }
+  .cta-btn.primary { background: #0284c7; color: #fff; border-color: #0284c7; }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px var(--shadow); }
+
+  /* Bottom Toolbar */
+  #toolbar {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+    background: var(--panel); padding: 7px 14px; border-radius: 28px;
+    border: 1px solid var(--border); box-shadow: 0 12px 32px var(--shadow); max-width: 96vw; backdrop-filter: blur(12px);
+  }
+  .btn {
+    background: transparent; border: none; color: var(--muted); padding: 6px 12px;
+    border-radius: 18px; font-size: 12.5px; font-weight: 700; cursor: pointer; transition: 0.18s;
+  }
+  .btn:hover { color: var(--text); background: rgba(148, 163, 184, 0.15); }
+  .btn.on { background: #0284c7; color: #fff; }
+
+  /* 3D CSS2D Callout Labels */
+  .lbl {
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    white-space: nowrap; box-shadow: 0 4px 12px var(--shadow); pointer-events: none;
+  }
+  .lbl small { display: block; font-weight: 600; color: var(--muted); font-size: 10px; }
+
+  #loading-badge {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 25; background: var(--panel); border: 1px solid var(--border);
+    padding: 16px 26px; border-radius: 14px; font-weight: 800; font-size: 14px;
+    box-shadow: 0 16px 40px var(--shadow);
+  }
+
+  /* Native Modal Dialogs (light-dismiss-a-dialog) */
+  dialog {
+    margin: auto; width: min(1140px, 94vw); max-height: 90vh;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    border-radius: 18px; padding: 0; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+  dialog::backdrop {
+    background-color: rgba(2, 6, 23, 0.65);
+    backdrop-filter: blur(4px);
+  }
+  .dlg-header {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 14px 20px; border-bottom: 1px solid var(--boxb); background: var(--box);
+  }
+  .dlg-header h2 { font-size: 16px; font-weight: 800; color: var(--accent); }
+  .dlg-body { padding: 18px 20px; overflow-y: auto; max-height: calc(90vh - 64px); scrollbar-gutter: stable; }
+  .dlg-close {
+    background: var(--panel); border: 1px solid var(--boxb); color: var(--text);
+    padding: 5px 12px; border-radius: 8px; font-weight: 800; cursor: pointer;
+  }
+  .sheet-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .sheet-preview-box {
+    background: #ffffff; border: 1px solid var(--boxb); border-radius: 10px;
+    overflow: hidden; text-align: center; padding: 6px;
+  }
+  .sheet-preview-box img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 6px; }
+
+  /* Responsive Table (responsive-table pattern) */
+  .table-wrapper {
+    overflow: auto;
+    max-inline-size: 100%;
+    max-block-size: min(520px, 72vh);
+    container-type: inline-size;
+    border: 1px solid var(--boxb);
+    border-radius: 10px;
+    scrollbar-gutter: stable;
+  }
+  table.bom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+    --label-2: "零件編號";
+    --label-3: "中文名稱";
+    --label-4: "English Name";
+    --label-5: "數量";
+    --label-6: "建議醫療材質";
+    --label-7: "關鍵配合與規範";
+    --label-8: "3D 檔案下載";
+  }
+  table.bom-table caption {
+    text-align: left; padding: 10px 12px; font-weight: 800; color: var(--accent); background: var(--box);
+  }
+  table.bom-table thead {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background: var(--box);
+  }
+  table.bom-table th, table.bom-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--boxb);
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.bom-table tbody th {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background: var(--panel);
+    font-weight: 800;
+    color: var(--accent);
+  }
+  @container (width < 640px) {
+    table.bom-table, table.bom-table thead, table.bom-table tbody, table.bom-table tr, table.bom-table th, table.bom-table td {
+      display: block;
+    }
+    table.bom-table thead { display: none; }
+    table.bom-table tr { margin-block-end: 1rem; border: 1px solid var(--boxb); border-radius: 8px; overflow: hidden; }
+    table.bom-table tbody th { position: sticky; inset-block-start: 0; z-index: 2; background: var(--box); }
+    table.bom-table td:nth-child(2)::before { content: var(--label-2) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(3)::before { content: var(--label-3) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(4)::before { content: var(--label-4) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(5)::before { content: var(--label-5) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(6)::before { content: var(--label-6) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(7)::before { content: var(--label-7) "："; font-weight: 700; color: var(--muted); }
+    table.bom-table td:nth-child(8)::before { content: var(--label-8) "："; font-weight: 700; color: var(--muted); }
+  }
+
+  @media (max-width: 1024px) {
+    #header { max-width: 92vw; top: 10px; left: 10px; padding: 9px 12px; }
+    #stage-nav { top: auto; bottom: 68px; max-width: 96vw; overflow-x: auto; }
+    #ctrl-panel { display: none; }
+    #info { width: calc(100vw - 20px); right: 10px; top: auto; bottom: 120px; max-height: 36vh; }
+  }
+</style>
+</head>
+<body>
+<div id="canvas"></div>
+<div id="loading-badge">⏳ 正在載入精確 B-Rep 3D 模型組件 (GLB)...</div>
+
+<div id="header">
+  <div class="title-row">
+    <h1>雙單管混合裝置 3D 工程展示</h1>
+    <span class="badge">Rev. B · 完整公差與防呆定版</span>
+    <a class="nav-link" href="interactive_3d_viewer.html" title="前往 SHM 微流控雙腔混合頭 v2 頁面">🔬 切換至：SHM 微流道混合頭 v2</a>
+  </div>
+  <div id="legend">
+    <span><i style="background:#38bdf8"></i>A 腔 (+7.2mm)：酸性 S-buffer ＋ PEG 粉劑溶解腔</span>
+    <span><i style="background:#a855f7"></i>B 腔 (-7.2mm)：鹼性 T-buffer 交聯啟動液</span>
+    <span><i style="background:#22c55e"></i>#4 單雙管切換片 (0° 聯動 / 90° 單管解鎖)</span>
+  </div>
+</div>
+
+<div id="stage-nav" role="tablist" aria-label="臨床操作階段切換">
+  <button class="stage-btn" onclick="setStage(0)">Stage 1 · 儲存密封 (#3)</button>
+  <button class="stage-btn" onclick="setStage(1)">Stage 2 · 單管魯爾溶粉 (#2)</button>
+  <button class="stage-btn active" onclick="setStage(2)">Stage 3 · 雙管螺旋點膠 (#1)</button>
+  <button class="stage-btn" onclick="setStage(3)">Stage 4 · 全系統爆炸與防呆</button>
+</div>
+
+<div id="ctrl-panel" class="scroller">
+  <h4>
+    <span>⚙️ 機構自由度與剖面控制</span>
+    <button class="mini-btn" style="flex:0 0 auto;" onclick="resetMechanism()">重置機構</button>
+  </h4>
+
+  <div class="ctrl-group">
+    <div class="ctrl-label">
+      <span>#4 單雙管推拉切換片角度</span>
+      <span class="val" id="val-clip">0° (雙管 1:1 鎖定)</span>
+    </div>
+    <input id="sl-clip" type="range" min="0" max="90" step="1" value="0" oninput="onClipSlider(this.value)">
+    <div class="quick-row">
+      <button class="mini-btn on" id="q-clip-0" onclick="onClipSlider(0)">0° 雙管鎖定態</button>
+      <button class="mini-btn" id="q-clip-90" onclick="onClipSlider(90)">90° 旋開解鎖 A 管</button>
+    </div>
+  </div>
+
+  <div class="ctrl-group">
+    <div class="ctrl-label">
+      <span>A 腔推桿行程 (S-buffer / PEG)</span>
+      <span class="val" id="val-stroke-a">0.0 mm</span>
+    </div>
+    <input id="sl-stroke-a" type="range" min="0" max="38.5" step="0.5" value="0" oninput="onStrokeA(this.value)">
+  </div>
+
+  <div class="ctrl-group">
+    <div class="ctrl-label">
+      <span>B 腔推桿行程 (T-buffer 鹼液)</span>
+      <span class="val" id="val-stroke-b">0.0 mm</span>
+    </div>
+    <input id="sl-stroke-b" type="range" min="0" max="38.5" step="0.5" value="0" oninput="onStrokeB(this.value)">
+  </div>
+
+  <div class="ctrl-group">
+    <div class="ctrl-label">
+      <span>零件軸向爆炸拆解 (Explode)</span>
+      <span class="val" id="val-explode">0%</span>
+    </div>
+    <input id="sl-explode" type="range" min="0" max="100" step="1" value="0" oninput="onExplode(this.value)">
+  </div>
+
+  <div class="ctrl-group">
+    <div class="ctrl-label">
+      <span>即時 3D 剖面透視 (Section Cut)</span>
+      <span class="val" id="val-sec">關閉</span>
+    </div>
+    <div class="quick-row">
+      <button class="mini-btn on" id="sec-off" onclick="setSectionMode('off')">完整外觀</button>
+      <button class="mini-btn" id="sec-xz" onclick="setSectionMode('xz')">A-A 雙腔縱剖</button>
+      <button class="mini-btn" id="sec-yz" onclick="setSectionMode('yz')">側向剖面</button>
+    </div>
+    <input id="sl-sec-pos" type="range" min="-20" max="20" step="0.2" value="0" style="margin-top:7px; display:none;" oninput="onSectionOffset(this.value)">
+  </div>
+</div>
+
+<div id="info" class="scroller">
+  <h3 id="p-title"></h3>
+  <div class="chips" id="p-chips"></div>
+  <p id="p-desc"></p>
+
+  <div class="cta-grid">
+    <button class="cta-btn primary" onclick="openBlueprintDialog(1)">📐 線上翻閱 5 張 A3 工程圖</button>
+    <button class="cta-btn" onclick="openBomDialog()">📋 10 項 BOM 表 & 3D 檔下載</button>
+  </div>
+
+  <span class="sec">🔧 機構設計與臨床動作重點</span>
+  <div class="box" id="p-mech"></div>
+
+  <span class="sec">📏 本階段關鍵工程尺寸 (mm)</span>
+  <div id="p-metrics"></div>
+
+  <span class="sec">🛡️ 新版 Rev. B 修正原廠商缺漏項目</span>
+  <div class="box" id="p-fixes"></div>
+</div>
+
+<div id="toolbar">
+  <button class="btn on" id="b-anim" onclick="toggleAnim()">▶️ 自動動作演示</button>
+  <button class="btn" id="b-sec-quick" onclick="toggleQuickSection()">🔪 A-A 縱剖面透視</button>
+  <button class="btn on" id="b-xray" onclick="toggleXray()">🧊 針筒半透明</button>
+  <button class="btn on" id="b-lbl" onclick="toggleLabels()">🏷 3D 零件標註</button>
+  <button class="btn" id="b-ctrl" onclick="toggleCtrlPanel()">🎛️ 機構滑桿面板</button>
+  <button class="btn" onclick="openBlueprintDialog(1)">📄 A3 設計圖集</button>
+  <button class="btn" onclick="openBomDialog()">📦 下載 STEP/PDF</button>
+  <button class="btn" id="b-theme" onclick="toggleColorScheme()" aria-label="切換深淺色主題">🌓 主題切換</button>
+</div>
+
+<!-- Dialog 1: 5-Sheet A3 Engineering Blueprint Viewer -->
+<dialog id="blueprint-dialog" closedby="any" aria-labelledby="blueprint-dialog-title">
+  <div class="dlg-header">
+    <h2 id="blueprint-dialog-title">📐 雙單管混合裝置 — 新版完整專業工程設計圖集 (Rev. B, A3 雙語全剖視)</h2>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <a class="cta-btn primary" style="padding:5px 12px; font-size:12px;" href="PDF/%E9%9B%99%E5%96%AE%E7%AE%A1%E6%B7%B7%E5%90%88%E8%A3%9D%E7%BD%AE_%E5%AE%8C%E6%95%B4%E5%B0%88%E6%A5%AD%E8%A8%AD%E8%A8%88%E5%9C%96_RevB.pdf" download>⬇️ 下載 5 張 A3 雙語全剖視藍圖 PDF</a>
+      <a class="cta-btn" style="padding:5px 12px; font-size:12px;" href="PDF/coseal_iso_engineering_drawings.pdf" download>⬇️ 下載 8 張 ISO 正投影圖 PDF</a>
+      <button class="dlg-close" onclick="document.getElementById('blueprint-dialog').close()">✕ 關閉</button>
+    </div>
+  </div>
+  <div class="dlg-body scroller">
+    <div class="sheet-tabs">
+      <button class="mini-btn on" id="tab-s1" onclick="showSheet(1)">Sheet 1 · 三階段總成與 10 項 BOM</button>
+      <button class="mini-btn" id="tab-s2" onclick="showSheet(2)">Sheet 2 · 雙腔針筒與推桿 A-A 剖視圖</button>
+      <button class="mini-btn" id="tab-s3" onclick="showSheet(3)">Sheet 3 · #1 螺旋混合雙管蓋 B-B 剖視圖</button>
+      <button class="mini-btn" id="tab-s4" onclick="showSheet(4)">Sheet 4 · #2 魯爾單管蓋 & #3 初始塞蓋剖視圖</button>
+      <button class="mini-btn" id="tab-s5" onclick="showSheet(5)">Sheet 5 · #4 單雙管切換片詳圖與動作圖</button>
+    </div>
+    <div class="sheet-preview-box">
+      <img id="sheet-img" src="assets/sheets/sheet_1.png" alt="A3 工程設計圖預覽" loading="lazy">
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialog 2: Master BOM & CAD Downloads -->
+<dialog id="bom-dialog" closedby="any" aria-labelledby="bom-dialog-title">
+  <div class="dlg-header">
+    <h2 id="bom-dialog-title">📦 完整 10 項工程物料清單 (Master BOM) 與 3D STEP / STL / PDF 檔案下載</h2>
+    <button class="dlg-close" onclick="document.getElementById('bom-dialog').close()">✕ 關閉</button>
+  </div>
+  <div class="dlg-body scroller">
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+      <a class="cta-btn primary" href="PDF/%E9%9B%99%E5%96%AE%E7%AE%A1%E6%B7%B7%E5%90%88%E8%A3%9D%E7%BD%AE_%E5%AE%8C%E6%95%B4%E5%B0%88%E6%A5%AD%E8%A8%AD%E8%A8%88%E5%9C%96_RevB.pdf" download>📄 下載主工程藍圖 PDF (5張A3全剖視)</a>
+      <a class="cta-btn" href="PDF/coseal_iso_engineering_drawings.pdf" download>📄 下載 ISO 第三角法零件圖 PDF (8張A3)</a>
+      <a class="cta-btn" href="STEP/coseal_device_dispense.step" download>🧊 下載點膠總成 STEP (SolidWorks/Creo)</a>
+      <a class="cta-btn" href="STEP/coseal_system_overview.step" download>🧊 下載三階段全系統 STEP</a>
+      <a class="cta-btn" href="3MF/coseal_device_dispense.3mf" download>🖨️ 下載多材質 3MF 列印檔</a>
+    </div>
+
+    <div tabindex="0" role="region" aria-labelledby="bom-table-caption" class="table-wrapper scroller">
+      <table class="bom-table">
+        <caption id="bom-table-caption">雙單管混合裝置 (CSL-SYS-000 Rev. B) — 10 項構成零件與 3D 實體檔</caption>
+        <thead>
+          <tr>
+            <th>項次</th>
+            <th>零件編號</th>
+            <th>中文名稱</th>
+            <th>English Name</th>
+            <th>數量</th>
+            <th>建議醫療材質</th>
+            <th>關鍵配合與公差規範</th>
+            <th>單件 3D 下載</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>01</th>
+            <td>CSL-PRT-101</td>
+            <td>雙腔針筒本體</td>
+            <td>Dual-Barrel Syringe Body</td>
+            <td>1</td>
+            <td>醫療級透明 COC / PP</td>
+            <td>孔距 14.40±0.05 / 內孔 Ø12.20±0.05 / +Y 60° & -Y 20° 防呆卡口</td>
+            <td><a href="STEP/dual_barrel_body.step" download>STEP</a> · <a href="STL/dual_barrel_body.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>02</th>
+            <td>CSL-PRT-102</td>
+            <td>十字推桿</td>
+            <td>Cruciform Plunger Rod</td>
+            <td>2</td>
+            <td>醫療級 PP / ABS</td>
+            <td>有效肩長 72.30±0.10 (總長 75.50) / 尾盤 Ø12.80×1.60 / 頸 Ø6.20</td>
+            <td><a href="STEP/plunger_rod.step" download>STEP</a> · <a href="STL/plunger_rod.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>03</th>
+            <td>CSL-PRT-103</td>
+            <td>三環彈性活塞</td>
+            <td>Triple-Rib Elastomer Stopper</td>
+            <td>2</td>
+            <td>醫療級溴化丁基膠 (Shore A 55)</td>
+            <td>成型外徑 Ø12.50±0.10 (過盈氣密) × 高 7.00 mm</td>
+            <td><a href="STEP/elastomer_stopper.step" download>STEP</a> · <a href="STL/elastomer_stopper.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>04</th>
+            <td>CSL-PRT-104</td>
+            <td>#4 單雙管推拉切換片</td>
+            <td>Single/Dual Plunger Clip</td>
+            <td>1</td>
+            <td>醫療級 POM (Delrin) / PP</td>
+            <td>30.0×16.4×4.0 / B 軸 Ø6.80 常駐樞轉 90° / A 軸 11.90 C 型彈扣</td>
+            <td><a href="STEP/plunger_clip.step" download>STEP</a> · <a href="STL/plunger_clip.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>05</th>
+            <td>CSL-CAP-201A</td>
+            <td>#1 螺旋混合外旋蓋</td>
+            <td>Mixer Bayonet Outer Cap</td>
+            <td>1</td>
+            <td>醫療級 ABS / PP (卡其綠)</td>
+            <td>Ø22.00×14.87 / 非對稱防呆卡耳跨距 23.96±0.05 (26°寬 / 15°窄)</td>
+            <td><a href="STEP/helical_mixer_cap.step" download>STEP</a> · <a href="STL/helical_mixer_cap.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>06</th>
+            <td>CSL-CAP-201B</td>
+            <td>#1 雙套筒彈性密封座</td>
+            <td>Dual-Sleeve Manifold Seat</td>
+            <td>1</td>
+            <td>醫療級矽膠 Shore A 60</td>
+            <td>雙孔距 8.00±0.03 / 母套孔成型 Ø3.10±0.05 包覆 Ø3.20 公嘴</td>
+            <td>(含於 #1 組件 STEP)</td>
+          </tr>
+          <tr>
+            <th>07</th>
+            <td>CSL-CAP-201C</td>
+            <td>#1 錐形 Y 匯流座與 8 節螺旋管</td>
+            <td>Y-Funnel + Ø4 Cannula & Kenics Core</td>
+            <td>1 組</td>
+            <td>透明 PC 外管 + POM 螺旋芯</td>
+            <td>外露 26.73 (總長 41.60) / Ø4.0 OD × Ø3.0 ID / 8 節 180° 螺旋葉片</td>
+            <td>(含於 #1 組件 STEP)</td>
+          </tr>
+          <tr>
+            <th>08</th>
+            <td>CSL-CAP-202A</td>
+            <td>#2 魯爾轉接滾花外環</td>
+            <td>Knurled Bayonet Ring</td>
+            <td>1</td>
+            <td>醫療級 PP / ABS (紫)</td>
+            <td>Ø30.00×3.40 (總高 15.00) / 頂面 65° 腎形旋轉讓位槽</td>
+            <td><a href="STEP/luer_transfer_cap.step" download>STEP</a> · <a href="STL/luer_transfer_cap.stl" download>STL</a></td>
+          </tr>
+          <tr>
+            <th>09</th>
+            <td>CSL-CAP-202B</td>
+            <td>#2 偏心母魯爾與盲塞芯</td>
+            <td>ISO 80369-7 Luer + Blind Core</td>
+            <td>1</td>
+            <td>醫療級 PC + TPE 雙料包膠</td>
+            <td>+4.00mm 偏心 ISO 80369-7 6% 母魯爾 (Ø7.80 螺紋) / -4.00mm B 腔盲塞</td>
+            <td>(含於 #2 組件 STEP)</td>
+          </tr>
+          <tr>
+            <th>10</th>
+            <td>CSL-CAP-203</td>
+            <td>#3 初始塞閥蓋組 (含雙盲塞)</td>
+            <td>Initial Plug Valve Cap Assy</td>
+            <td>1 組</td>
+            <td>醫療級 PP (綠) + 丁基雙盲塞</td>
+            <td>Ø22.00×17.00 (旋柄高 8×厚 4) / 雙腔端面與內外徑雙重氣密</td>
+            <td><a href="STEP/initial_plug_cap.step" download>STEP</a> · <a href="STL/initial_plug_cap.stl" download>STL</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</dialog>
+
+<script>
+// ============================================================================
+// 1. DIALOG LIGHT-DISMISS FALLBACK (per modern-web-guidance light-dismiss-a-dialog)
+// ============================================================================
+document.querySelectorAll('dialog[closedby="any"]').forEach((dialog) => {
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== dialog) return;
+      const rect = dialog.getBoundingClientRect();
+      const isDialogContent = (
+        rect.top <= event.clientY &&
+        event.clientY <= rect.top + rect.height &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.left + rect.width
+      );
+      if (isDialogContent) return;
+      dialog.close();
+    });
+  }
+});
+
+function openBlueprintDialog(sheetNo) {
+  showSheet(sheetNo || 1);
+  document.getElementById('blueprint-dialog').showModal();
+}
+
+function showSheet(n) {
+  document.getElementById('sheet-img').src = `assets/sheets/sheet_${n}.png`;
+  for (let i = 1; i <= 5; i++) {
+    const b = document.getElementById(`tab-s${i}`);
+    if (b) b.classList.toggle('on', i === n);
+  }
+}
+
+function openBomDialog() {
+  document.getElementById('bom-dialog').showModal();
+}
+
+// ============================================================================
+// 2. COLOR-SCHEME TOGGLE (per modern-web-guidance dark-mode-toggle)
+// ============================================================================
+const schemeMeta = document.querySelector('meta[name="color-scheme"]');
+const darkMql = window.matchMedia('(prefers-color-scheme: dark)');
+
+function getRenderedScheme() {
+  const content = schemeMeta.content;
+  if (content === 'dark' || content === 'light') return content;
+  return darkMql.matches ? 'dark' : 'light';
+}
+
+function syncThreeBackground() {
+  if (!window._scene) return;
+  const isDark = getRenderedScheme() === 'dark';
+  window._scene.background = new THREE.Color(isDark ? 0x0b1120 : 0xe2e8f0);
+}
+
+function toggleColorScheme() {
+  const currentRendered = getRenderedScheme();
+  const target = currentRendered === 'dark' ? 'light' : 'dark';
+  const sysCurrent = darkMql.matches ? 'dark' : 'light';
+  try {
+    if (target === sysCurrent) {
+      localStorage.removeItem('color-scheme');
+      schemeMeta.content = 'light dark';
+    } else {
+      localStorage.setItem('color-scheme', target);
+      schemeMeta.content = target;
+    }
+  } catch (e) {
+    schemeMeta.content = target;
+  }
+  syncThreeBackground();
+}
+
+darkMql.addEventListener('change', () => syncThreeBackground());
+window.addEventListener('storage', (e) => {
+  if (e.key === 'color-scheme') {
+    schemeMeta.content = e.newValue ?? 'light dark';
+    syncThreeBackground();
+  }
+});
+
+// ============================================================================
+// 3. STAGE CONTENT METADATA
+// ============================================================================
+const STAGES = [
+  {
+    title: "Stage 1：出廠無菌封存態 (#3 初始塞閥蓋 ＋ #4 雙管鎖定)",
+    chips: [
+      ["#3 初始塞閥蓋 (17mm)", "ok"],
+      ["#4 切換片 0° 鎖定", "tip"],
+      ["A/B 雙腔獨立氣密", "ok"]
+    ],
+    desc: "出廠與滅菌儲存狀態：針筒 A 腔（+7.20 mm）預充酸性緩衝液（S-buffer），B 腔（-7.20 mm）預充鹼性交聯緩衝液（T-buffer）。前端由 #3 初始塞閥蓋內建之一體式醫用丁基膠雙盲塞密封；尾端由 #4 單雙管推拉切換片水平扣合（0°），防止運輸途中誤推。",
+    mech: "<ul><li><b>雙重盲塞密封：</b>#3 內部彈性墊同時具有 Ø3.10 mm 母套孔與 Ø1.86 mm 內塞針，包覆針筒雙公嘴（Ø3.20 mm）。</li><li><b>尾端防誤推鎖定：</b>#4 切換片內設 1.80 mm 圓盤槽，同時扣住 A、B 兩支推桿的 Ø12.80×1.60 mm 尾盤。</li></ul>",
+    metrics: [
+      ["#3 初始塞閥蓋尺寸", "Ø22.00 × 總高 17.00 mm (旋柄 8×4)"],
+      ["針筒本體尺寸", "46.10 × 33.41 × 長 69.40 mm"],
+      ["單腔內徑 / 容量", "Ø12.20 mm / 工作 4.0 mL (最大 5.0 mL)"],
+      ["#4 切換片鎖定角", "0° (水平同步扣合 A/B 推桿)"]
+    ],
+    fixes: "<ul><li><b>修正原圖剖面干涉：</b>原簡報立體圖與剖面圖在出料嘴處自相矛盾；Rev. B 統一規範為 Ø3.20×3.50 mm 雙公嘴配彈性母套孔。</li></ul>",
+    cam: { pos: [115, 35, 135], target: [0, 12, 0] }
+  },
+  {
+    title: "Stage 2：單管往復溶粉態 (#2 魯爾混合單管蓋 ＋ #4 旋開 90° 解鎖)",
+    chips: [
+      ["#2 偏心 ISO 6% 母魯爾", "tip"],
+      ["B 腔完全盲塞隔離", "ok"],
+      ["#4 旋開 90° 解鎖 A 桿", "fix"]
+    ],
+    desc: "術前配製階段：卸下 #3 後鎖上 #2 魯爾混合單管蓋，並將尾端 #4 切換片繞 B 推桿頸部向下旋開 90°。此時 B 腔（鹼液）被 #2 左側盲塞與鎖定的 B 推桿雙重封死；術者將裝有 PEG 粉劑的單管針筒旋入右側 +4.00 mm 偏心母魯爾口，單獨推拉 A 推桿對推約 20 次完成無氣泡溶解。",
+    mech: "<ul><li><b>外環獨立旋轉（65° 腎形槽）：</b>旋轉紫色 Ø30 mm 滾花外環鎖入卡口時，青色內芯對準雙公嘴保持靜止，絕不扭斷密封套。</li><li><b>Poka-Yoke 180° 防呆卡口：</b>+Y 寬耳 (26°) 與 -Y 窄耳 (15°) 物理杜絕 #2 裝反，防止粉劑誤入 B 腔鹼液瞬間成膠報廢！</li></ul>",
+    metrics: [
+      ["#2 魯爾單管蓋外廓", "Ø30.00 × 總高 15.00 mm (外環厚 3.40)"],
+      ["偏心母魯爾口位置", "+4.00 ±0.03 mm (對準 A 腔出料嘴)"],
+      ["魯爾接口國際標準", "ISO 80369-7 6% 內錐度 (Ø4.27→Ø3.91) / 螺紋 Ø7.80"],
+      ["#4 切換片解鎖角", "90° (繞 B 軸 -7.20 mm 樞轉垂下，釋放 A 軸)"]
+    ],
+    fixes: "<ul><li><b>新增 180° 防呆卡口與 ISO 80369-7 規範：</b>原圖卡耳完全對稱且無魯爾內錐度公差，Rev. B 補齊非對稱防呆與 6% 標準魯爾錐孔。</li></ul>",
+    cam: { pos: [130, 50, 145], target: [4, 28, 0] }
+  },
+  {
+    title: "Stage 3：雙管 1:1 同步點膠態 (#1 螺旋混合雙管蓋 ＋ 8 節 Kenics 靜態混合)",
+    chips: [
+      ["總長 166.60 mm", "ok"],
+      ["8 節 180° 螺旋混合芯", "tip"],
+      ["Y 型分流零提前成膠", "ok"]
+    ],
+    desc: "手術塗佈階段：將已溶解之 PEG 溶液全數推回 A 腔，將尾端 #4 切換片旋回 0° 喀擦扣住 A 推桿尾盤（恢復雙管 1:1 強制同步聯動），換上 #1 螺旋混合雙管蓋。推注時 A、B 兩液以 1:1 等體積比進入 8 節正反旋 Kenics 螺旋葉片，瞬間切割 2⁸ = 256 層均勻混合成膠。",
+    mech: "<ul><li><b>五件式無死角分流：</b>A、B 兩液在矽膠雙套筒座與酒紅色 Y 匯流座內完全獨立，直到 Ø3.00 mm 透明混合管入口才首次接觸，停推換頭時絕不倒灌堵塞針筒。</li><li><b>模組化擴充相容：</b>本卡口底座可直接替換接上本專案另一款低死體積（<40 µL）SHM 人字形微流道混合頭。</li></ul>",
+    metrics: [
+      ["裝置點膠態總長", "166.60 mm (含針筒 69.40 + 外露混合蓋 36.20)"],
+      ["#1 螺旋混合蓋總長", "41.60 ±0.15 mm (外蓋 14.87 + 外露管 26.73)"],
+      ["透明混合管與螺旋芯", "外徑 Ø4.00 / 內徑 Ø3.00 mm / 8 節×3.0 mm 螺旋葉"],
+      ["雙管同步有效排量", "雙腔共 8.0 mL 工作容積 (最大 10.0 mL)"]
+    ],
+    fixes: "<ul><li><b>補齊五件式流道剖面與滯留體積計算：</b>完整建立矽膠雙孔座、Y 型分流漏斗、Ø4/Ø3 外管與 8 節螺旋芯之 B-B 剖視圖（滯留體積約 165 µL）。</li></ul>",
+    cam: { pos: [125, 38, 145], target: [0, 22, 0] }
+  },
+  {
+    title: "Stage 4：全系統分解爆炸視圖與 7 大工程升級總覽",
+    chips: [
+      ["10 項完整 BOM", "ok"],
+      ["55 組配對 0.00 mm³ 零干涉", "ok"],
+      ["19 項包絡尺寸 0.0000 誤差", "tip"]
+    ],
+    desc: "將雙連針筒、雙十字推桿、三環丁基膠活塞、#4 單雙管切換片，以及 #1 螺旋混合蓋、#2 魯爾單管蓋、#3 初始塞閥蓋同時展開檢視。您可使用左側「零件軸向爆炸拆解」與「A-A 雙腔縱剖面」滑桿，逐一檢視所有內部公差與防呆結構。",
+    mech: "<ul><li><b>確定性 CAD 驗證通過：</b>全數零件通過 OCCT 拓樸檢查（is_valid=True），55 組零件配對布林干涉體積均為 0.00 mm³。</li><li><b>開模就緒：</b>點擊上方按鈕即可直接線上翻閱 5 張 A3 雙語全剖視工程圖或下載全套 STEP 3D 實體檔。</li></ul>",
+    metrics: [
+      ["雙腔中心距 / 出料嘴距", "14.40 ±0.05 mm / 8.00 ±0.03 mm"],
+      ["防呆卡耳外跨距", "23.96 ±0.05 mm (+Y 26° 寬耳 / -Y 15° 窄耳)"],
+      ["#4 切換片規格", "30.00 × 16.40 × 4.00 mm (C 扣開口 11.90±0.05)"],
+      ["一般公差標準", "ISO 2768-m (精密塑膠配合 ±0.05 mm)"]
+    ],
+    fixes: "<ul><li><b>全套 7 大缺漏一次補齊：</b>包含針筒/推桿/活塞零件圖、Section A-A～E-E 全剖視圖、Poka-Yoke 防呆、ISO 80369-7 魯爾與 10 項材質 BOM。</li></ul>",
+    cam: { pos: [165, 55, 175], target: [0, 25, 0] }
+  }
+];
+
+// ============================================================================
+// 4. THREE.JS 3D SCENE & REAL B-REP GLB ASSEMBLY
+// ============================================================================
+const container = document.getElementById('canvas');
+const scene = new THREE.Scene();
+window._scene = scene;
+syncThreeBackground();
+
+const camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 1, 2000);
+camera.position.set(125, 38, 145);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.localClippingEnabled = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+container.appendChild(renderer.domElement);
+
+const labelRenderer = new THREE.CSS2DRenderer();
+labelRenderer.setSize(window.innerWidth, window.innerHeight);
+labelRenderer.domElement.style.position = 'absolute';
+labelRenderer.domElement.style.top = '0';
+labelRenderer.domElement.style.pointerEvents = 'none';
+labelRenderer.domElement.style.zIndex = '5';
+container.appendChild(labelRenderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 22, 0);
+
+// Studio Lighting
+scene.add(new THREE.AmbientLight(0xffffff, 0.72));
+const dir1 = new THREE.DirectionalLight(0xffffff, 0.95);
+dir1.position.set(120, 180, 140);
+scene.add(dir1);
+const dir2 = new THREE.DirectionalLight(0x93c5fd, 0.55);
+dir2.position.set(-140, -60, -100);
+scene.add(dir2);
+const dir3 = new THREE.DirectionalLight(0xffffff, 0.40);
+dir3.position.set(0, 80, -160);
+scene.add(dir3);
+
+// Subtle reference grid
+const grid = new THREE.GridHelper(220, 22, 0x64748b, 0x94a3b8);
+grid.position.y = -68;
+grid.material.opacity = 0.22;
+grid.material.transparent = true;
+scene.add(grid);
+
+// Clipping plane for real-time cross-section inspection
+const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+let sectionMode = 'off'; // 'off' | 'xz' | 'yz'
+let sectionOffset = 0;
+
+// Assembly Node Groups (all coordinates in mm; Three.js Y = CAD Z, Three.js X = CAD X, Three.js Z = -CAD Y)
+const rootAssy = new THREE.Group();
+scene.add(rootAssy);
+
+const parts = {
+  barrel: new THREE.Group(),
+  plungerA: new THREE.Group(),
+  plungerB: new THREE.Group(),
+  stopperA: new THREE.Group(),
+  stopperB: new THREE.Group(),
+  clipPivotB: new THREE.Group(), // Pivot at (X = -7.20, Y = -61.00, Z = 0)
+  clipMesh: new THREE.Group(),
+  cap1Mixer: new THREE.Group(),
+  cap2Luer: new THREE.Group(),
+  cap3Plug: new THREE.Group(),
+  powderSyr: new THREE.Group()
+};
+
+parts.clipPivotB.add(parts.clipMesh);
+Object.values(parts).forEach((g) => {
+  if (g !== parts.clipMesh) rootAssy.add(g);
+});
+
+const barrelMaterials = [];
+const allClippedMaterials = [];
+
+function prepGlbScene(gltfScene, opts = {}) {
+  const wrapper = new THREE.Group();
+  gltfScene.scale.setScalar(1000); // meters -> mm
+  gltfScene.traverse((child) => {
+    if (child.isMesh && child.material) {
+      child.material = child.material.clone();
+      child.material.side = THREE.DoubleSide;
+      if (opts.isBarrel) {
+        child.material.transparent = true;
+        child.material.opacity = 0.42;
+        child.material.depthWrite = false;
+        barrelMaterials.push(child.material);
+      } else if (child.material.transparent && child.material.opacity < 0.95) {
+        child.material.depthWrite = false;
+      }
+      allClippedMaterials.push(child.material);
+    }
+  });
+  wrapper.add(gltfScene);
+  return wrapper;
+}
+
+const loader = new THREE.GLTFLoader();
+const glbList = [
+  ['dual_barrel_body.glb', (g) => parts.barrel.add(prepGlbScene(g, { isBarrel: true }))],
+  ['plunger_rod.glb', (g) => {
+    parts.plungerA.add(prepGlbScene(g.clone(true)));
+    parts.plungerB.add(prepGlbScene(g));
+  }],
+  ['elastomer_stopper.glb', (g) => {
+    parts.stopperA.add(prepGlbScene(g.clone(true)));
+    parts.stopperB.add(prepGlbScene(g));
+  }],
+  ['plunger_clip.glb', (g) => {
+    const m = prepGlbScene(g);
+    // Offset by (+7.20, 0, 0) inside clipPivotB so clipPivotB's origin is at (-7.20, 0, 0)
+    m.position.set(7.20, 0, 0);
+    parts.clipMesh.add(m);
+  }],
+  ['helical_mixer_cap.glb', (g) => parts.cap1Mixer.add(prepGlbScene(g))],
+  ['luer_transfer_cap.glb', (g) => parts.cap2Luer.add(prepGlbScene(g))],
+  ['initial_plug_cap.glb', (g) => parts.cap3Plug.add(prepGlbScene(g))],
+  ['powder_syringe.glb', (g) => parts.powderSyr.add(prepGlbScene(g))]
+];
+
+let loadedCount = 0;
+glbList.forEach(([file, cb]) => {
+  loader.load(`GLB/${file}`, (gltf) => {
+    cb(gltf.scene);
+    loadedCount++;
+    if (loadedCount === glbList.length) {
+      document.getElementById('loading-badge').style.display = 'none';
+      updateClippingPlanes();
+      applyMechanismPose();
+    }
+  });
+});
+
+// 3D CSS2D Callout Labels
+const labelsGroup = new THREE.Group();
+scene.add(labelsGroup);
+
+function makeLabel(title, sub, x, y, z) {
+  const div = document.createElement('div');
+  div.className = 'lbl';
+  div.innerHTML = `${title}<small>${sub}</small>`;
+  const obj = new THREE.CSS2DObject(div);
+  obj.position.set(x, y, z);
+  labelsGroup.add(obj);
+  return obj;
+}
+
+const lblCap1 = makeLabel('#1 螺旋混合雙管蓋', '8節Kenics螺旋 · 外露36.2mm', 16, 92, 0);
+const lblCap2 = makeLabel('#2 魯爾混合單管蓋', '+4.0mm偏心ISO 6%母魯爾 · B腔盲塞', 20, 74, 0);
+const lblCap3 = makeLabel('#3 初始塞閥蓋', '雙盲塞丁基膠 · 出廠無菌封存', 18, 74, 0);
+const lblPowder = makeLabel('外接粉劑單管針筒', 'Male Luer-Lock · 與A腔往復對推~20次', 22, 112, 0);
+const lblCollar = makeLabel('Poka-Yoke 防呆卡口環', '+Y 60°寬槽 / -Y 20°窄槽 (防180°裝反)', -24, 65, 0);
+const lblBarrelA = makeLabel('A 腔 (+7.20 mm)', 'S-buffer 酸液 · Ø12.20 (4.0 mL)', 22, 36, 0);
+const lblBarrelB = makeLabel('B 腔 (-7.20 mm)', 'T-buffer 鹼液 · Ø12.20 (4.0 mL)', -24, 36, 0);
+const lblClip = makeLabel('#4 單雙管推拉切換片', 'B軸常駐樞軸 · A軸C型彈扣 (30×16.4×4)', 20, -58, 0);
+
+// ============================================================================
+// 5. MECHANISM STATE & KINEMATICS ENGINE
+// ============================================================================
+let currentStage = 2; // Default Stage 3 (Dispense)
+let clipAngleDeg = 0;
+let strokeA = 0;
+let strokeB = 0;
+let explodePct = 0;
+let autoAnim = true;
+let xrayOn = true;
+let labelsOn = true;
+
+const BASE_PLUNGER_Y = -59.50;
+const BASE_STOPPER_Y = 12.84;
+const BASE_CLIP_Y = -61.00;
+const BASE_CAP_Y = 64.00;
+
+function applyMechanismPose() {
+  const ex = explodePct / 100.0;
+
+  // Barrel at origin
+  parts.barrel.position.set(0, 0, 0);
+
+  // Plungers & Stoppers
+  parts.plungerA.position.set(7.20, BASE_PLUNGER_Y + strokeA - ex * 28, 0);
+  parts.stopperA.position.set(7.20, BASE_STOPPER_Y + strokeA - ex * 10, 0);
+
+  parts.plungerB.position.set(-7.20, BASE_PLUNGER_Y + strokeB - ex * 28, 0);
+  parts.stopperB.position.set(-7.20, BASE_STOPPER_Y + strokeB - ex * 10, 0);
+
+  // Selector Clip #4: pivots on Plunger B neck (-7.20, BASE_CLIP_Y + strokeB, 0)
+  parts.clipPivotB.position.set(-7.20, BASE_CLIP_Y + strokeB - ex * 42, 0);
+  parts.clipPivotB.rotation.set(0, THREE.MathUtils.degToRad(clipAngleDeg), 0);
+
+  // Caps visibility & position by Stage
+  parts.cap1Mixer.visible = (currentStage === 2 || currentStage === 3);
+  parts.cap2Luer.visible = (currentStage === 1 || currentStage === 3);
+  parts.cap3Plug.visible = (currentStage === 0 || currentStage === 3);
+  parts.powderSyr.visible = (currentStage === 1);
+
+  if (currentStage === 3) {
+    // Stage 4 Overview: show #1 centered exploded up, #2 on +X side, #3 on -X side
+    parts.cap1Mixer.position.set(0, BASE_CAP_Y + 14 + ex * 30, 0);
+    parts.cap2Luer.position.set(36, BASE_CAP_Y + 8 + ex * 20, 0);
+    parts.cap3Plug.position.set(-36, BASE_CAP_Y + 8 + ex * 20, 0);
+  } else {
+    parts.cap1Mixer.position.set(0, BASE_CAP_Y + ex * 26, 0);
+    parts.cap2Luer.position.set(0, BASE_CAP_Y + ex * 22, 0);
+    parts.cap3Plug.position.set(0, BASE_CAP_Y + ex * 22, 0);
+    // Powder syringe mates to +4.00 mm Female Luer port at Y = 64 + 15 = 79 mm; moves inversely with strokeA during reconstitution
+    const powderStrokeOffset = Math.max(0, 18 - strokeA * 0.5);
+    parts.powderSyr.position.set(4.00, BASE_CAP_Y + 13.0 + ex * 38 - powderStrokeOffset * 0.15, 0);
+  }
+
+  // Update dynamic label visibility & positions
+  lblCap1.visible = labelsOn && (currentStage === 2 || currentStage === 3);
+  lblCap2.visible = labelsOn && (currentStage === 1);
+  lblCap3.visible = labelsOn && (currentStage === 0);
+  lblPowder.visible = labelsOn && (currentStage === 1);
+  lblCollar.visible = labelsOn;
+  lblBarrelA.visible = labelsOn;
+  lblBarrelB.visible = labelsOn;
+  lblClip.visible = labelsOn;
+  lblClip.position.set(20, BASE_CLIP_Y + strokeB - ex * 42, 0);
+
+  // Sync UI readouts
+  document.getElementById('sl-clip').value = Math.round(clipAngleDeg);
+  document.getElementById('val-clip').textContent =
+    clipAngleDeg < 5 ? '0° (雙管 1:1 鎖定)' : `${Math.round(clipAngleDeg)}° (單管解鎖態)`;
+  document.getElementById('q-clip-0').classList.toggle('on', clipAngleDeg < 5);
+  document.getElementById('q-clip-90').classList.toggle('on', clipAngleDeg >= 85);
+
+  document.getElementById('sl-stroke-a').value = strokeA;
+  document.getElementById('val-stroke-a').textContent = `${Number(strokeA).toFixed(1)} mm`;
+  document.getElementById('sl-stroke-b').value = strokeB;
+  document.getElementById('val-stroke-b').textContent = `${Number(strokeB).toFixed(1)} mm`;
+  document.getElementById('sl-explode').value = explodePct;
+  document.getElementById('val-explode').textContent = `${Math.round(explodePct)}%`;
+}
+
+function onClipSlider(val) {
+  autoAnim = false;
+  document.getElementById('b-anim').classList.remove('on');
+  clipAngleDeg = parseFloat(val);
+  if (clipAngleDeg < 5) {
+    // Re-couple plungers when locked at 0 deg
+    strokeA = strokeB;
+  }
+  applyMechanismPose();
+}
+
+function onStrokeA(val) {
+  autoAnim = false;
+  document.getElementById('b-anim').classList.remove('on');
+  strokeA = parseFloat(val);
+  if (clipAngleDeg < 5) {
+    strokeB = strokeA; // 1:1 locked!
+  }
+  applyMechanismPose();
+}
+
+function onStrokeB(val) {
+  autoAnim = false;
+  document.getElementById('b-anim').classList.remove('on');
+  strokeB = parseFloat(val);
+  if (clipAngleDeg < 5) {
+    strokeA = strokeB; // 1:1 locked!
+  }
+  applyMechanismPose();
+}
+
+function onExplode(val) {
+  autoAnim = false;
+  document.getElementById('b-anim').classList.remove('on');
+  explodePct = parseFloat(val);
+  applyMechanismPose();
+}
+
+function resetMechanism() {
+  autoAnim = false;
+  document.getElementById('b-anim').classList.remove('on');
+  clipAngleDeg = (currentStage === 1) ? 90 : 0;
+  strokeA = 0;
+  strokeB = 0;
+  explodePct = (currentStage === 3) ? 45 : 0;
+  applyMechanismPose();
+}
+
+function updateClippingPlanes() {
+  const activePlanes = sectionMode === 'off' ? [] : [clipPlane];
+  if (sectionMode === 'xz') {
+    clipPlane.normal.set(0, 0, -1);
+    clipPlane.constant = sectionOffset;
+  } else if (sectionMode === 'yz') {
+    clipPlane.normal.set(-1, 0, 0);
+    clipPlane.constant = sectionOffset;
+  }
+  allClippedMaterials.forEach((m) => {
+    m.clippingPlanes = activePlanes;
+    m.needsUpdate = true;
+  });
+}
+
+function setSectionMode(mode) {
+  sectionMode = mode;
+  document.getElementById('sec-off').classList.toggle('on', mode === 'off');
+  document.getElementById('sec-xz').classList.toggle('on', mode === 'xz');
+  document.getElementById('sec-yz').classList.toggle('on', mode === 'yz');
+  document.getElementById('b-sec-quick').classList.toggle('on', mode !== 'off');
+  const sl = document.getElementById('sl-sec-pos');
+  if (mode === 'off') {
+    sl.style.display = 'none';
+    document.getElementById('val-sec').textContent = '關閉';
+  } else {
+    sl.style.display = 'block';
+    document.getElementById('val-sec').textContent =
+      mode === 'xz' ? `XZ 剖面 (${sectionOffset.toFixed(1)} mm)` : `YZ 剖面 (${sectionOffset.toFixed(1)} mm)`;
+  }
+  updateClippingPlanes();
+}
+
+function onSectionOffset(val) {
+  sectionOffset = parseFloat(val);
+  setSectionMode(sectionMode);
+}
+
+function toggleQuickSection() {
+  if (sectionMode === 'off') {
+    sectionOffset = 0;
+    document.getElementById('sl-sec-pos').value = 0;
+    setSectionMode('xz');
+  } else {
+    setSectionMode('off');
+  }
+}
+
+function toggleXray() {
+  xrayOn = !xrayOn;
+  document.getElementById('b-xray').classList.toggle('on', xrayOn);
+  barrelMaterials.forEach((m) => {
+    m.opacity = xrayOn ? 0.42 : 0.88;
+    m.needsUpdate = true;
+  });
+}
+
+function toggleLabels() {
+  labelsOn = !labelsOn;
+  document.getElementById('b-lbl').classList.toggle('on', labelsOn);
+  applyMechanismPose();
+}
+
+function toggleCtrlPanel() {
+  const p = document.getElementById('ctrl-panel');
+  const shown = getComputedStyle(p).display !== 'none';
+  p.style.display = shown ? 'none' : 'block';
+  document.getElementById('b-ctrl').classList.toggle('on', !shown);
+}
+
+function toggleAnim() {
+  autoAnim = !autoAnim;
+  document.getElementById('b-anim').classList.toggle('on', autoAnim);
+}
+
+// ============================================================================
+// 6. STAGE SELECTION & CAMERA TRANSITION
+// ============================================================================
+let camTargetPos = new THREE.Vector3(125, 38, 145);
+let camTargetLook = new THREE.Vector3(0, 22, 0);
+let camLerp = 0;
+
+function setStage(idx) {
+  currentStage = idx;
+  document.querySelectorAll('#stage-nav .stage-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+
+  const st = STAGES[idx];
+  document.getElementById('p-title').textContent = st.title;
+  document.getElementById('p-chips').innerHTML = st.chips
+    .map(([t, c]) => `<span class="chip ${c}">${t}</span>`)
+    .join('');
+  document.getElementById('p-desc').textContent = st.desc;
+  document.getElementById('p-mech').innerHTML = st.mech;
+  document.getElementById('p-metrics').innerHTML = st.metrics
+    .map(([k, v]) => `<div class="row"><span>${k}</span><strong>${v}</strong></div>`)
+    .join('');
+  document.getElementById('p-fixes').innerHTML = st.fixes;
+
+  // Set default pose for stage
+  if (idx === 0) {
+    clipAngleDeg = 0; strokeA = 0; strokeB = 0; explodePct = 0;
+  } else if (idx === 1) {
+    clipAngleDeg = 90; strokeA = 12; strokeB = 0; explodePct = 0;
+  } else if (idx === 2) {
+    clipAngleDeg = 0; strokeA = 0; strokeB = 0; explodePct = 0;
+  } else if (idx === 3) {
+    clipAngleDeg = 45; strokeA = 0; strokeB = 0; explodePct = 45;
+  }
+  applyMechanismPose();
+
+  camTargetPos.set(...st.cam.pos);
+  camTargetLook.set(...st.cam.target);
+  camLerp = 1.0;
+}
+
+// Initialize Stage 3 (idx = 2)
+setStage(2);
+
+// ============================================================================
+// 7. ANIMATION LOOP
+// ============================================================================
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  if (camLerp > 0.01) {
+    camera.position.lerp(camTargetPos, 0.08);
+    controls.target.lerp(camTargetLook, 0.08);
+    camLerp *= 0.92;
+  }
+
+  if (autoAnim && loadedCount === glbList.length) {
+    if (currentStage === 0) {
+      // Stage 1: gentle cap lift/lock preview
+      clipAngleDeg = 0;
+      strokeA = 0;
+      strokeB = 0;
+      explodePct = 8 * (0.5 - 0.5 * Math.cos(t * 1.8));
+    } else if (currentStage === 1) {
+      // Stage 2: Clip unlocked at 90 deg, Plunger A reciprocating back-and-forth for powder dissolution!
+      clipAngleDeg = 90;
+      strokeB = 0;
+      strokeA = 19.0 * (0.5 - 0.5 * Math.cos(t * 3.2));
+      explodePct = 0;
+    } else if (currentStage === 2) {
+      // Stage 3: 8-second cycle matching CAD clinical_workflow animation
+      const cyc = t % 8.0;
+      explodePct = 0;
+      if (cyc < 2.0) {
+        const s = 0.5 - 0.5 * Math.cos(Math.PI * (cyc / 2.0));
+        clipAngleDeg = 90.0 * (1.0 - s);
+        strokeA = 0; strokeB = 0;
+      } else if (cyc < 6.0) {
+        const s = 0.5 - 0.5 * Math.cos(Math.PI * ((cyc - 2.0) / 4.0));
+        clipAngleDeg = 0;
+        strokeA = 38.5 * s;
+        strokeB = 38.5 * s;
+      } else {
+        const s = 0.5 - 0.5 * Math.cos(Math.PI * ((cyc - 6.0) / 2.0));
+        clipAngleDeg = 90.0 * s;
+        strokeA = 38.5 * (1.0 - s);
+        strokeB = 38.5 * (1.0 - s);
+      }
+    } else if (currentStage === 3) {
+      // Stage 4: Smooth explode breathing
+      explodePct = 20 + 55 * (0.5 - 0.5 * Math.cos(t * 1.2));
+      clipAngleDeg = 45 + 45 * Math.sin(t * 1.2);
+    }
+    applyMechanismPose();
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+  labelRenderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

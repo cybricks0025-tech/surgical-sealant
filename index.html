@@ -246,6 +246,28 @@ try {
     box-shadow: 0 16px 40px var(--shadow);
   }
 
+  /* Minimalist Mode (Pure 3D Model View) */
+  #exit-minimal-btn {
+    position: absolute; bottom: 20px; right: 20px; z-index: 30;
+    display: none; align-items: center; gap: 6px;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    padding: 8px 16px; border-radius: 24px; font-size: 12.5px; font-weight: 800;
+    cursor: pointer; box-shadow: 0 8px 24px var(--shadow); backdrop-filter: blur(12px);
+    opacity: 0.78; transition: opacity 0.2s, transform 0.2s;
+  }
+  #exit-minimal-btn:hover { opacity: 1; transform: translateY(-1px); background: #0284c7; color: #fff; border-color: #0284c7; }
+  body.minimal-mode #header,
+  body.minimal-mode #stage-nav,
+  body.minimal-mode #ctrl-panel,
+  body.minimal-mode #info,
+  body.minimal-mode #toolbar,
+  body.minimal-mode .lbl {
+    display: none !important;
+  }
+  body.minimal-mode #exit-minimal-btn {
+    display: inline-flex;
+  }
+
   /* Native Modal Dialogs (light-dismiss-a-dialog) */
   dialog {
     margin: auto; width: min(1140px, 94vw); max-height: 90vh;
@@ -445,6 +467,7 @@ try {
 </div>
 
 <div id="toolbar">
+  <button class="btn" id="b-minimal" onclick="toggleMinimalMode()" title="隱藏所有文字面板，畫面僅保留純 3D 模型 (快捷鍵 H)">🖼️ 簡約模式</button>
   <button class="btn on" id="b-anim" onclick="toggleAnim()">▶️ 自動動作演示</button>
   <button class="btn" id="b-sec-quick" onclick="toggleQuickSection()">🔪 A-A 縱剖面透視</button>
   <button class="btn on" id="b-xray" onclick="toggleXray()">🧊 針筒半透明</button>
@@ -454,6 +477,7 @@ try {
   <button class="btn" onclick="openBomDialog()">📦 下載 STEP/PDF</button>
   <button class="btn" id="b-theme" onclick="toggleColorScheme()" aria-label="切換深淺色主題">🌓 主題切換</button>
 </div>
+<button id="exit-minimal-btn" onclick="toggleMinimalMode()" aria-label="退出簡約模式並顯示操作介面">✨ 退出簡約模式 (顯示介面)</button>
 
 <!-- Dialog 1: 5-Sheet A3 Engineering Blueprint Viewer -->
 <dialog id="blueprint-dialog" closedby="any" aria-labelledby="blueprint-dialog-title">
@@ -951,6 +975,7 @@ let explodePct = 0;
 let autoAnim = true;
 let xrayOn = true;
 let labelsOn = true;
+let minimalMode = false;
 
 const BASE_PLUNGER_Y = -59.50;
 const BASE_STOPPER_Y = 12.84;
@@ -995,14 +1020,15 @@ function applyMechanismPose() {
   }
 
   // Update dynamic label visibility & positions
-  lblCap1.visible = labelsOn && (currentStage === 2 || currentStage === 3);
-  lblCap2.visible = labelsOn && (currentStage === 1);
-  lblCap3.visible = labelsOn && (currentStage === 0);
-  lblPowder.visible = labelsOn && (currentStage === 1);
-  lblCollar.visible = labelsOn;
-  lblBarrelA.visible = labelsOn;
-  lblBarrelB.visible = labelsOn;
-  lblClip.visible = labelsOn;
+  const showLbl = labelsOn && !minimalMode;
+  lblCap1.visible = showLbl && (currentStage === 2 || currentStage === 3);
+  lblCap2.visible = showLbl && (currentStage === 1);
+  lblCap3.visible = showLbl && (currentStage === 0);
+  lblPowder.visible = showLbl && (currentStage === 1);
+  lblCollar.visible = showLbl;
+  lblBarrelA.visible = showLbl;
+  lblBarrelB.visible = showLbl;
+  lblClip.visible = showLbl;
   lblClip.position.set(20, BASE_CLIP_Y + strokeB - ex * 42, 0);
 
   // Sync UI readouts
@@ -1143,6 +1169,25 @@ function toggleAnim() {
   document.getElementById('b-anim').classList.toggle('on', autoAnim);
 }
 
+function toggleMinimalMode(forceState) {
+  minimalMode = typeof forceState === 'boolean' ? forceState : !minimalMode;
+  document.body.classList.toggle('minimal-mode', minimalMode);
+  const btn = document.getElementById('b-minimal');
+  if (btn) btn.classList.toggle('on', minimalMode);
+  applyMechanismPose();
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+  const openDlg = document.querySelector('dialog[open]');
+  if (openDlg) return;
+  if (e.key === 'h' || e.key === 'H') {
+    toggleMinimalMode();
+  } else if (e.key === 'Escape' && minimalMode) {
+    toggleMinimalMode(false);
+  }
+});
+
 // ============================================================================
 // 6. STAGE SELECTION & CAMERA TRANSITION
 // ============================================================================
@@ -1185,8 +1230,11 @@ function setStage(idx) {
   camLerp = 1.0;
 }
 
-// Initialize Stage 3 (idx = 2)
+// Initialize Stage 3 (idx = 2) and check URL hash for #minimal=1
 setStage(2);
+if (new URLSearchParams(location.hash.slice(1)).get('minimal') === '1') {
+  toggleMinimalMode(true);
+}
 
 // ============================================================================
 // 7. ANIMATION LOOP

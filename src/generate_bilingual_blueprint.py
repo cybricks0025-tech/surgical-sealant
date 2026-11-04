@@ -351,8 +351,8 @@ def build_sheet_1(pdf: PdfPages) -> None:
     ax.text(84, 115, "Stage 2: 單管往復溶解態\n(#2 魯爾單管蓋 + 切換片旋開90°\n+ 外接粉劑單管對推 ~20 次)", fontsize=6.3, fontweight="bold", color="#553C9A", bbox=dict(boxstyle="round,pad=0.3", fc="#FAF5FF", ec="#9F7AEA", lw=0.6))
     ax.text(136, 134, "Stage 3: 雙管同步注射態\n(#1 螺旋混合雙管蓋 + 1:1 聯動)", fontsize=6.5, fontweight="bold", color="#744210", bbox=dict(boxstyle="round,pad=0.3", fc="#FFFFF0", ec="#D69E2E", lw=0.6))
 
-    # Right Upper: Complete 10-Part Bill of Materials (BOM)
-    bx, by = 188, 132
+    # Right Upper: Complete 11-Part Bill of Materials (BOM)
+    bx, by = 188, 120
     col_w = [12, 26, 44, 48, 12, 38, 36]  # total = 216 mm
     headers = ["項次", "零件編號", "中文零件名稱", "English Component Name", "數量", "建議醫療級材質", "關鍵配合與規範"]
     rows = [
@@ -360,15 +360,15 @@ def build_sheet_1(pdf: PdfPages) -> None:
         ["02", "CSL-PRT-102", "十字推桿", "Cruciform Plunger Rod", "2", "醫療級 PP / ABS (藍灰)", "總長75.50 / 尾盤Ø12.80×1.60"],
         ["03", "CSL-PRT-103", "三環彈性活塞", "Triple-Rib Elastomer Stopper", "2", "醫療級溴化丁基膠 (紫)", "成形Ø12.50±0.10 (過盈氣密) × 7.00"],
         ["04", "CSL-PRT-104", "#4 單雙管推拉切換片", "Single/Dual Plunger Clip", "1", "醫療級 POM / 耐衝擊 PP", "30×16.4×4.0 / B軸樞轉90° / A軸C扣"],
-        ["05", "CSL-CAP-201A", "#1 螺旋混合外旋蓋", "Mixer Bayonet Outer Cap", "1", "醫療級 ABS / PP (卡其綠)", "Ø22.00×14.87 / 防呆卡耳23.96"],
-        ["06", "CSL-CAP-201B", "#1 雙套筒彈性密封座", "Dual-Sleeve Manifold Seat", "1", "醫療級矽膠 Shore A 60", "孔距8.00 / 母套孔Ø3.10過盈密封"],
-        ["07", "CSL-CAP-201C", "#1 錐形 Y 匯流座與螺旋管", "Y-Funnel + Ø4 Cannula & Core", "1組", "透明 PC 管 + POM 8節螺旋芯", "外管Ø4/Ø3×26.73外露 / 零預混死角"],
-        ["08", "CSL-CAP-202A", "#2 魯爾轉接滾花外環", "Knurled Bayonet Ring", "1", "醫療級 PP / ABS (紫)", "Ø30.00×3.40 / 65°腎形旋轉讓位槽"],
-        ["09", "CSL-CAP-202B", "#2 偏心母魯爾與盲塞芯", "ISO 80369-7 Luer + Blind Core", "1", "醫療級 PC + TPE 雙料包膠", "A側+4.0偏心6%母魯爾Ø7.80 / B側盲塞"],
+        ["05", "CSL-CAP-201-1", "#1 外旋卡口壓蓋 (1-1)", "Mixer Bayonet Outer Cap", "1", "醫療級 ABS / PP (橄欖綠)", "Ø22.00×14.87 / 內錐免膠夾持"],
+        ["06", "CSL-CAP-201-2", "#1 雙流道分流密封座 (1-2)", "Dual-Channel Manifold Seat", "1", "醫療級矽膠 Shore A 60", "Ø19.60×7.40 / 母套孔Ø3.10過盈"],
+        ["07", "CSL-CAP-201-3", "#1 一體式喇叭口外管 (1-3)", "1-Piece Bell-Mouth Cannula", "1", "醫療級透明 PC / COC", "Ø11.4喇叭口→Ø4/Ø3×32.56無接縫"],
+        ["08", "CSL-CAP-201-4", "#1 防脫底座螺旋混合芯 (1-4)", "9-Elem Anti-Eject Helix Core", "1", "醫療級高流動 POM (暗紅)", "Ø4.40防脫環 + 9節×3.0=28.00"],
+        ["09", "CSL-CAP-202A/B", "#2 魯爾混合單管蓋組", "ISO 80369-7 Luer Cap Assy", "1組", "醫療級 PP + PC/TPE", "Ø30外環 + A側6%母魯爾 / B側盲塞"],
         ["10", "CSL-CAP-203", "#3 初始塞閥蓋組 (含雙塞墊)", "Initial Plug Valve Cap Assy", "1組", "醫療級 PP (綠) + 丁基雙盲塞", "Ø22.00×17.00 (旋柄8×4) / 雙腔氣密"],
     ]
 
-    ax.text(bx, by + 148, "完整工程物料清單 (MASTER BILL OF MATERIALS — 10 COMPONENTS)", fontsize=8.2, fontweight="bold", color="#0F172A")
+    ax.text(bx, by + 148, "完整工程物料清單 (MASTER BILL OF MATERIALS — #1 混合頭四件式同步版)", fontsize=8.0, fontweight="bold", color="#0F172A")
     cur_y = by + 136
     rh_h = 8.0
     # Draw header
@@ -516,7 +516,7 @@ def build_sheet_3(pdf: PdfPages) -> None:
 
     sc = 4.6
     cx, cy = 135.0, 52.0
-    ax.text(cx, 270, "剖視圖 SECTION B-B (#1 螺旋混合雙管蓋五件式內部流道組裝剖面, SCALE 4.6:1)", ha="center", fontsize=8.2, fontweight="bold", color="#0F172A")
+    ax.text(cx, 270, "剖視圖 SECTION B-B (#1 螺旋混合雙管蓋四件式內部流道組裝剖面, SCALE 4.6:1)", ha="center", fontsize=8.2, fontweight="bold", color="#0F172A")
 
     draw_xz_section(
         ax,
@@ -525,33 +525,33 @@ def build_sheet_3(pdf: PdfPages) -> None:
         cy=cy,
         scale=sc,
         color_map={
-            "mixer_outer_cap": ("#D9DF9D", "#4D531B"),
-            "mixer_seal_seat": ("#DDB892", "#6C3B1C"),
-            "y_convergence_funnel": ("#E5989B", "#7F1D1D"),
-            "mixing_cannula": ("#E0F2FE", "#0369A1"),
-            "helical_mixer_core": ("#FCA5A5", "#991B1B"),
+            "part1_outer_cap": ("#D9DF9D", "#4D531B"),
+            "part2_seal_seat": ("#DDB892", "#6C3B1C"),
+            "part3_bell_cannula": ("#BAE6FD", "#0369A1"),
+            "part4_helical_core": ("#FCA5A5", "#991B1B"),
         },
     )
     ax.plot([cx, cx], [cy - 6, cy + 43.5 * sc], color="#DC2626", ls="-.", lw=0.5)
+    for sign in (-1.0, 1.0):
+        ax.plot([cx + sign * 1.50 * sc, cx + sign * 1.50 * sc], [cy + 10.90 * sc, cy + 41.60 * sc], color="#0369A1", lw=0.55, zorder=3.5)
 
-    # Full Dimensions matching Vendor + Internal Fluidics
+    # Full Dimensions matching Vendor + 4-Part Internal Fluidics
     dim_v(ax, cx - 11.98 * sc, cx - 2.00 * sc, cy, cy + 41.60 * sc, cx - 76, "41.60 ±0.15 (混合蓋總長)")
-    dim_v(ax, cx - 11.98 * sc, cx - 3.80 * sc, cy, cy + 14.87 * sc, cx - 64, "14.87 (外旋蓋高度)")
-    dim_v(ax, cx - 3.80 * sc, cx - 2.00 * sc, cy + 14.87 * sc, cy + 41.60 * sc, cx - 48, "26.73 (透明混合管外露長)")
+    dim_v(ax, cx - 11.98 * sc, cx - 3.10 * sc, cy, cy + 14.87 * sc, cx - 64, "14.87 (1-1 外旋蓋高度)")
+    dim_v(ax, cx - 3.10 * sc, cx - 2.00 * sc, cy + 14.87 * sc, cy + 41.60 * sc, cx - 48, "26.73 (1-3 混合管外露長)")
     dim_v(ax, cx + 11.98 * sc, cx + 11.98 * sc, cy, cy + 1.80 * sc, cx + 64, "1.80 (卡耳厚)")
-    dim_v(ax, cx + 2.00 * sc, cx + 2.00 * sc, cy + 15.00 * sc, cy + 39.00 * sc, cx + 44, "24.00 (8節螺旋混合有效區)")
+    dim_v(ax, cx + 2.00 * sc, cx + 2.00 * sc, cy + 9.60 * sc, cy + 37.60 * sc, cx + 44, "28.00 (1-4 防脫螺旋芯總長)")
 
     dim_h(ax, cx - 11.98 * sc, cx + 11.98 * sc, cy, cy, cy - 12, "23.96 ±0.05 (防呆卡耳外跨距)")
     dim_h(ax, cx - 11.00 * sc, cx + 11.00 * sc, cy + 6.0 * sc, cy + 6.0 * sc, cy - 22, "Ø22.00 ±0.10 (外蓋本體外徑)")
     dim_h(ax, cx - 4.00 * sc, cx + 4.00 * sc, cy + 2.0 * sc, cy + 2.0 * sc, cy - 32, "8.00 ±0.03 (雙入口套筒中心距)")
     dim_h(ax, cx - 2.00 * sc, cx + 2.00 * sc, cy + 41.60 * sc, cy + 41.60 * sc, cy + 41.60 * sc + 9, "Ø4.00 外徑 / Ø3.00 內徑")
 
-    # Component Callouts
-    callout(ax, (cx + 1.1 * sc, cy + 28.0 * sc), (cx + 58, cy + 165), "⑤ 靜態螺旋混合芯 (Kenics Core)\n8節正反180°交錯扭轉葉片 (節距3.0mm)\n葉寬 2.82 × 厚 0.42 mm (切割2⁸=256層)")
-    callout(ax, (cx + 2.0 * sc, cy + 21.0 * sc), (cx + 58, cy + 128), "④ 醫療級透明混合管 (Clear Cannula)\nØ4.00 OD × Ø3.00 ID (總長 31.36 mm)")
-    callout(ax, (cx + 3.5 * sc, cy + 8.6 * sc), (cx + 58, cy + 92), "③ 錐形 Y 匯流座 (Maroon Funnel)\n兩液維持獨立至 Ø3.0 管口才首次接觸\n徹底消除歧管提前成膠堵塞風險！")
-    callout(ax, (cx + 4.8 * sc, cy + 5.8 * sc), (cx + 58, cy + 54), "② 雙套筒彈性密封座 (Silicone Seat)\n成形母套孔 Ø3.10±0.05 (過盈包覆公嘴)\n外緣 Ø18.60/Ø17.00 階梯嵌合不隨外蓋轉動")
-    callout(ax, (cx + 9.8 * sc, cy + 10.5 * sc), (cx + 58, cy + 18), "① 止滑肋外旋蓋 (Bayonet Outer Cap)\n外周16道止滑槽；裝上針筒後伸出長 36.20 mm")
+    # 4-Component Callouts (matching CSL-CAP-201-1..4)
+    callout(ax, (cx + 1.1 * sc, cy + 28.0 * sc), (cx + 58, cy + 162), "④ 1-4 防脫出底座靜態螺旋混合芯\n9節正反180°交錯葉片 (2⁹=512層) + Ø4.40止擋環\n由喇叭口向上置入，物理防高壓射出脫落！")
+    callout(ax, (cx + 2.0 * sc, cy + 19.5 * sc), (cx + 58, cy + 114), "③ 1-3 一體式喇叭口透明混合外管\n底部Ø11.40喇叭口與Ø4.00直管一體成型無接縫\n總長 32.56 mm (單零件圖見 CSL-CAP-201-3)")
+    callout(ax, (cx + 9.2 * sc, cy + 10.5 * sc), (cx + 58, cy + 68), "① 1-1 外旋卡口壓蓋 (Bayonet Outer Cap)\n內錐面免膠水機械壓緊 1-3 喇叭口於 1-2 頂端")
+    callout(ax, (cx + 4.8 * sc, cy + 6.2 * sc), (cx + 58, cy + 20), "② 1-2 雙流道分流密封內座 (Silicone Seat)\n母套孔Ø3.10±0.05過盈包覆公嘴 + 中央分流隔板\n外緣Ø19.60/Ø18.60階梯防脫扣合")
 
     # Right Side: Design Note & Optional SHM Upgrade Note
     ax.add_patch(FancyBboxPatch((268, 52), 140, 208, boxstyle="round,pad=1.5", facecolor="#F8FAFC", edgecolor="#94A3B8", lw=0.7))

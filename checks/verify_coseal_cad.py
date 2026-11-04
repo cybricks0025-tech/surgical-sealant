@@ -82,10 +82,31 @@ def main() -> None:
         "STEP/plunger_clip.step",
         (S.CLIP_SPAN_X, S.CLIP_WIDTH_Y, S.CLIP_THICKNESS),          # 30.00 x 16.40 x 4.00
     )
+
+    # 1b. Verify all 4 standalone sub-parts of #1 Helical Static Mixer Cap
+    check_part_envelope_and_topology(
+        "STEP/mixer_part1_outer_cap.step",
+        (S.CAP_LUG_SPAN, S.CAP_BODY_OD, S.MIXER_BODY_LEN),          # 23.96 x 22.00 x 14.87
+    )
+    check_part_envelope_and_topology(
+        "STEP/mixer_part2_seal_seat.step",
+        (S.MIXER_P2_RIM_OD, S.MIXER_P2_RIM_OD, S.MIXER_P2_HEIGHT),  # 19.60 x 19.60 x 7.40
+    )
+    check_part_envelope_and_topology(
+        "STEP/mixer_part3_bell_cannula.step",
+        (S.MIXER_P3_BELL_OD, S.MIXER_P3_BELL_OD, S.MIXER_P3_LEN),   # 10.20 x 10.20 x 32.56
+    )
+    check_part_envelope_and_topology(
+        "STEP/mixer_part4_helical_core.step",
+        (S.MIXER_P4_COLLAR_OD, S.MIXER_P4_COLLAR_OD, S.MIXER_P4_LEN),  # 4.40 x 4.40 x 28.00
+    )
     check_part_envelope_and_topology(
         "STEP/helical_mixer_cap.step",
         (S.CAP_LUG_SPAN, S.CAP_BODY_OD, S.MIXER_CAP_TOTAL_LEN),     # 23.96 x 22.00 x 41.60
     )
+    mixer_solids = list(read_step(ROOT / "STEP/helical_mixer_cap.step").solids())
+    assert len(mixer_solids) == 4, f"Expected exact 4 solids in helical_mixer_cap.step, got {len(mixer_solids)}"
+    print(f"  [PASS] helical_mixer_cap exact sub-part solid count = {len(mixer_solids)}")
     check_part_envelope_and_topology(
         "STEP/luer_transfer_cap.step",
         (S.LUER_FLANGE_OD, S.LUER_FLANGE_OD, S.LUER_CAP_TOTAL_LEN), # 30.00 x 30.00 x 15.00

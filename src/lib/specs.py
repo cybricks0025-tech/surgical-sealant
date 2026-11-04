@@ -90,15 +90,36 @@ CLIP_PIVOT_HOLE_DIA = 6.80        # Captive pivot bore around Ø6.20 plunger nec
 CLIP_SNAP_THROAT = 11.90          # Side C-hook snap opening (0.90 mm elastic snap interference on Ø12.80)
 
 # ==============================================================================
-# 5. PART #1: HELICAL STATIC MIXER CAP (螺旋混合雙管蓋)
+# 5. PART #1: 4-PART HELICAL STATIC MIXER CAP (螺旋混合雙管蓋 — 四件式結構)
 # ==============================================================================
-MIXER_CAP_TOTAL_LEN = 41.60       # Vendor spec: 41.60 mm
-MIXER_BODY_LEN = 14.87            # Vendor spec: 14.87 mm
-MIXER_TUBE_EXPOSED = 26.73        # Vendor spec: 26.73 mm (14.87 + 26.73 = 41.60)
+MIXER_CAP_TOTAL_LEN = 41.60       # Vendor spec: 41.60 mm total height
+MIXER_BODY_LEN = 14.87            # Vendor spec: 14.87 mm outer cap height (Part 1-1)
+MIXER_SHOULDER_Z = 11.87          # Conical clamping shoulder start Z on Part 1-1
+MIXER_TUBE_EXPOSED = 26.73        # Vendor spec: 26.73 mm exposed past outer cap (14.87 + 26.73 = 41.60)
 MIXER_TUBE_OD = 4.00              # Vendor spec: Ø4.00 mm cannula OD
 MIXER_TUBE_ID = 3.00              # Cannula ID (wall = 0.50 mm)
-MIXER_ELEMENT_COUNT = 8           # 8 alternating L/R 180-deg Kenics helical elements
-MIXER_ELEMENT_LEN = 3.00          # Length per helical element (24.0 mm active mixing zone)
+
+# Assembly Z placement offsets inside Cap #1 (relative to Part 1-1 base Z = 0.00)
+MIXER_P2_Z0 = 1.60                # Part 1-2 seal seat base Z (Z = 1.60 .. 9.00, height = 7.40 mm)
+MIXER_P2_HEIGHT = 7.40            # Part 1-2 total height
+MIXER_P2_RIM_OD = 19.60           # Part 1-2 lower anti-pullout retaining lip OD
+MIXER_P2_FLANGE_OD = 18.60        # Part 1-2 upper main flange OD
+MIXER_P2_BOSS_OD = 12.20          # Part 1-2 top collection boss OD
+MIXER_P2_CUP_ID = 10.00           # Part 1-2 top collection recess ID (spans X = ±4.00 Ø1.80 risers cleanly)
+MIXER_P2_SLEEVE_OD = 5.60         # Part 1-2 dual lower nozzle sleeve OD
+
+MIXER_P3_Z0 = 9.04                # Part 1-3 one-piece bell cannula base Z (Z = 9.04 .. 41.60)
+MIXER_P3_LEN = 32.56              # Part 1-3 total length (41.60 - 9.04 = 32.56 mm; nominal 32.60 mm)
+MIXER_P3_BELL_OD = 11.40          # Part 1-3 flared bell base OD (clamped without glue)
+MIXER_P3_BELL_ID = 10.00          # Part 1-3 flared bell inlet ID (captures both ±4.00 risers directly)
+
+MIXER_P4_Z0 = 9.60                # Part 1-4 helical core base Z (Z = 9.60 .. 37.60)
+MIXER_P4_LEN = 28.00              # Part 1-4 total length (1.00 mm collar + 9 x 3.00 mm blades)
+MIXER_P4_COLLAR_OD = 4.40         # Part 1-4 rear anti-ejection conical collar max OD (> Ø3.00 bore!)
+MIXER_ELEMENT_COUNT = 9           # 9 alternating L/R 180-deg Kenics helical elements (2^9 = 512 layers)
+MIXER_ELEMENT_LEN = 3.00          # Length per helical element (27.00 mm active mixing zone)
+MIXER_BLADE_SPAN = 2.86           # Helical blade width across Ø3.00 mm bore
+MIXER_BLADE_THICK = 0.42          # Helical blade & splitter fin thickness
 
 # ==============================================================================
 # 6. PART #2: LUER RECONSTITUTION TRANSFER CAP (魯爾混合單管蓋)

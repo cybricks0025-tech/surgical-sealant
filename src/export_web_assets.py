@@ -1,4 +1,4 @@
-"""Export individual part/subassembly GLB files and PNG blueprint sheets for the GitHub Pages 3D Web Portal."""
+"""Export individual part/subassembly GLB files for the GitHub Pages 3D Web Portal."""
 from __future__ import annotations
 
 import sys
@@ -14,6 +14,11 @@ from elastomer_stopper import elastomer_stopper  # noqa: E402
 from helical_mixer_cap import helical_mixer_cap  # noqa: E402
 from initial_plug_cap import initial_plug_cap  # noqa: E402
 from luer_transfer_cap import luer_transfer_cap  # noqa: E402
+from mixer_4part_exploded import mixer_4part_exploded  # noqa: E402
+from mixer_part1_outer_cap import mixer_part1_outer_cap  # noqa: E402
+from mixer_part2_seal_seat import mixer_part2_seal_seat  # noqa: E402
+from mixer_part3_bell_cannula import mixer_part3_bell_cannula  # noqa: E402
+from mixer_part4_helical_core import mixer_part4_helical_core  # noqa: E402
 from plunger_clip import plunger_clip  # noqa: E402
 from plunger_rod import plunger_rod  # noqa: E402
 from powder_syringe import powder_syringe  # noqa: E402
@@ -44,6 +49,31 @@ def _glb_mixer():
     return helical_mixer_cap()
 
 
+@glb(out="../GLB/mixer_part1_outer_cap.glb")
+def _glb_mixer_p1():
+    return mixer_part1_outer_cap()
+
+
+@glb(out="../GLB/mixer_part2_seal_seat.glb")
+def _glb_mixer_p2():
+    return mixer_part2_seal_seat()
+
+
+@glb(out="../GLB/mixer_part3_bell_cannula.glb")
+def _glb_mixer_p3():
+    return mixer_part3_bell_cannula()
+
+
+@glb(out="../GLB/mixer_part4_helical_core.glb")
+def _glb_mixer_p4():
+    return mixer_part4_helical_core()
+
+
+@glb(out="../GLB/mixer_4part_exploded.glb")
+def _glb_mixer_exploded():
+    return mixer_4part_exploded()
+
+
 @glb(out="../GLB/luer_transfer_cap.glb")
 def _glb_luer():
     return luer_transfer_cap()
@@ -65,7 +95,12 @@ if __name__ == "__main__":
     _glb_stopper()
     _glb_clip()
     _glb_mixer()
+    _glb_mixer_p1()
+    _glb_mixer_p2()
+    _glb_mixer_p3()
+    _glb_mixer_p4()
+    _glb_mixer_exploded()
     _glb_luer()
     _glb_plug()
     _glb_powder()
-    print("Exported all 8 modular GLB assets to GLB/")
+    print("Exported all 13 modular GLB assets to GLB/")

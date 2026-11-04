@@ -12,6 +12,7 @@ _STEP = _HERE / ".." / "STEP"
 _REVS = [
     ("A", "2026-10-28", "VENDOR CONCEPT LAYOUT"),
     ("B", "2026-11-03", "COMPLETE 3D CAD, POKA-YOKE & ISO TOLERANCES"),
+    ("C", "2026-11-04", "VERIFIED 4-PART MIXER DETAIL DRAWINGS"),
 ]
 
 
@@ -80,30 +81,30 @@ def coseal_engineering_drawings():
     front2.dim((23.05, 0, 0.0), (23.05, 0, S.FLANGE_THICKNESS), orientation="v")
 
     # ==========================================================================
-    # SHEET 3: PART #1 HELICAL STATIC MIXER CAP
+    # SHEET 3: PART #1 HELICAL STATIC MIXER CAP (4-PART ASSEMBLY)
     # ==========================================================================
     mixer = cadgen.read_step(_STEP / "helical_mixer_cap.step")
     s3 = Sheet(
         "A3",
         scale=2.0,
-        title="PART 1 - HELICAL STATIC MIXER DUAL-BARREL CAP",
+        title="PART 1 - 4-PART HELICAL STATIC MIXER DUAL-BARREL CAP ASSY",
         part_number="CSL-CAP-201",
-        material="ABS / SILICONE / CLEAR PC",
-        revision="B",
+        material="ABS / SILICONE / CLEAR PC / POM",
+        revision="C",
         author="ANTIGRAVITY CAD",
         general_tolerance="ISO 2768-m",
         revisions=_REVS,
         notes=[
-            "8-ELEMENT ALTERNATING L/R 180-DEG KENICS MIXER.",
-            "SEPARATED CHANNELS CONVERGE AT CANNULA INLET.",
+            "4-PART SUBASSEMBLY: CAP + SEAL + 1-PC BELL TUBE + HELIX.",
+            "9-ELEMENT KENICS CORE WITH 4.40 MM ANTI-EJECTION BASE.",
             "SEAL SOCKET MOLDED ID 3.10 +-0.05 MM (INTERFERENCE).",
         ],
     )
     top3, front3, right3, _iso3 = s3.three_views(mixer, gap=40, iso=True)
     front3.overall()
     right3.dim((0.0, -11.00, 0.0), (0.0, 11.00, 0.0), orientation="h")
-    front3.dim((-11.00, 0, 0.0), (-3.80, 0, S.MIXER_BODY_LEN), orientation="v")
-    front3.dim((3.80, 0, S.MIXER_BODY_LEN), (2.00, 0, S.MIXER_CAP_TOTAL_LEN), orientation="v")
+    front3.dim((-11.00, 0, 0.0), (-3.10, 0, S.MIXER_BODY_LEN), orientation="v")
+    front3.dim((3.10, 0, S.MIXER_BODY_LEN), (2.00, 0, S.MIXER_CAP_TOTAL_LEN), orientation="v")
     top3.diameter((0.0, 0.0, S.MIXER_CAP_TOTAL_LEN), 2.00, angle=45)
 
     # ==========================================================================
@@ -248,7 +249,111 @@ def coseal_engineering_drawings():
     top8.diameter((0, 0, 0), S.STOPPER_OD / 2.0, angle=45)
     front8.dim((-6.08, 0, 0.0), (-6.08, 0, 5.20), orientation="v")
 
-    return [s1, s2, s3, s4, s5, s6, s7, s8]
+    # ==========================================================================
+    # SHEET 9: PART #1-1 MIXER BAYONET RETAINING OUTER CAP
+    # ==========================================================================
+    mp1 = cadgen.read_step(_STEP / "mixer_part1_outer_cap.step")
+    s9 = Sheet(
+        "A3",
+        scale=3.0,
+        title="PART 1-1 - MIXER BAYONET RETAINING OUTER CAP",
+        part_number="CSL-CAP-201-1",
+        material="MEDICAL GRADE ABS / PP (OLIVE GREEN)",
+        revision="C",
+        author="ANTIGRAVITY CAD",
+        general_tolerance="ISO 2768-f",
+        revisions=_REVS,
+        notes=[
+            "ASYMMETRIC BAYONET LUGS: +X 26 DEG / -X 15 DEG.",
+            "INTERNAL CONICAL SHOULDER CLAMPS BELL CANNULA WITHOUT GLUE.",
+            "SINGLE-PULL 2-PLATE MOLDABLE STEPPED CAVITY.",
+        ],
+    )
+    top9, front9, right9, _iso9 = s9.three_views(mp1, gap=38, iso=True)
+    front9.overall()
+    right9.dim((0.0, -11.00, 0.0), (0.0, 11.00, 0.0), orientation="h", tol=0.10)
+    front9.dim((-11.00, 0.0, 0.0), (-11.00, 0.0, S.MIXER_SHOULDER_Z), orientation="v")
+    top9.diameter((0.0, 0.0, S.MIXER_BODY_LEN), 2.04, angle=45)
+
+    # ==========================================================================
+    # SHEET 10: PART #1-2 DUAL-CHANNEL MANIFOLD SEAL SEAT
+    # ==========================================================================
+    mp2 = cadgen.read_step(_STEP / "mixer_part2_seal_seat.step")
+    s10 = Sheet(
+        "A3",
+        scale=4.0,
+        title="PART 1-2 - DUAL-CHANNEL MANIFOLD ELASTOMER SEAL SEAT",
+        part_number="CSL-CAP-201-2",
+        material="MEDICAL SILICONE / TPE (SHORE A 60)",
+        revision="C",
+        author="ANTIGRAVITY CAD",
+        general_tolerance="ISO 2768-m",
+        revisions=_REVS,
+        notes=[
+            "MOLDED FEMALE NOZZLE SOCKETS ID 3.10 +-0.05 MM (2X).",
+            "DUAL STRAIGHT 1.80 MM RISERS ON 8.00 +-0.03 MM PITCH.",
+            "CENTRAL PARTITION RIB ISOLATES CHANNELS A & B.",
+        ],
+    )
+    top10, front10, right10, _iso10 = s10.three_views(mp2, gap=48, iso=True)
+    front10.overall()
+    front10.dim((-4.00, 0.0, 0.0), (4.00, 0.0, 0.0), orientation="h", tol=0.03)
+    front10.dim((-6.80, 0.0, 0.0), (-9.80, 0.0, 4.40), orientation="v")
+    top10.diameter((0.0, 0.0, 6.40), S.MIXER_P2_BOSS_OD / 2.0, angle=45)
+
+    # ==========================================================================
+    # SHEET 11: PART #1-3 ONE-PIECE BELL-MOUTH MIXING CANNULA
+    # ==========================================================================
+    mp3 = cadgen.read_step(_STEP / "mixer_part3_bell_cannula.step")
+    s11 = Sheet(
+        "A3",
+        scale=3.0,
+        title="PART 1-3 - ONE-PIECE BELL-MOUTH CLEAR MIXING CANNULA",
+        part_number="CSL-CAP-201-3",
+        material="MEDICAL CLEAR POLYCARBONATE (PC) / COC",
+        revision="C",
+        author="ANTIGRAVITY CAD",
+        general_tolerance="ISO 2768-f",
+        revisions=_REVS,
+        notes=[
+            "INTEGRATED FLARED BELL MOUTH & STRAIGHT CANNULA (NO SEAM).",
+            "OPTICAL TRANSMITTANCE >= 88% FOR VISUAL BUBBLE CHECK.",
+            "SINGLE POLISHED CORE PIN EXTRACTION ALONG -Z.",
+        ],
+    )
+    top11, front11, right11 = s11.three_views(mp3, gap=38, iso=False)
+    _iso11 = s11.view(mp3, "iso", at=(345, 180), scale=2.2, label="ISOMETRIC (2.2:1)")
+    front11.overall()
+    front11.dim((-5.70, 0.0, 0.0), (-2.00, 0.0, 2.46), orientation="v")
+    top11.diameter((0.0, 0.0, S.MIXER_P3_LEN), 2.00, angle=45)
+
+    # ==========================================================================
+    # SHEET 12: PART #1-4 9-ELEMENT KENICS HELICAL MIXER CORE
+    # ==========================================================================
+    mp4 = cadgen.read_step(_STEP / "mixer_part4_helical_core.step")
+    s12 = Sheet(
+        "A3",
+        scale=3.0,
+        title="PART 1-4 - 9-ELEMENT KENICS HELICAL CORE (ANTI-EJECTION)",
+        part_number="CSL-CAP-201-4",
+        material="MEDICAL GRADE POM (ACETAL COPOLYMER)",
+        revision="C",
+        author="ANTIGRAVITY CAD",
+        general_tolerance="ISO 2768-f",
+        revisions=_REVS,
+        notes=[
+            "REAR CONICAL COLLAR OD 4.40->3.40 MM PREVENTS TIP BLOWOUT.",
+            "9 ALTERNATING L/R 180-DEG ELEMENTS (3.00 MM PITCH, 512 LAYERS).",
+            "LEFT/RIGHT SPLIT-CAVITY PRECISION INJECTION MOLD.",
+        ],
+    )
+    top12, front12, right12 = s12.three_views(mp4, gap=38, iso=False)
+    _iso12 = s12.view(mp4, "iso", at=(345, 180), scale=2.4, label="ISOMETRIC (2.4:1)")
+    front12.overall()
+    front12.dim((-2.20, 0.0, 0.0), (-1.70, 0.0, 1.00), orientation="v")
+    front12.dim((1.70, 0.0, 1.00), (1.43, 0.0, S.MIXER_P4_LEN), orientation="v")
+
+    return [s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12]
 
 
 if __name__ == "__main__":

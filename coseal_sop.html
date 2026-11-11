@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>COSEAL® (4 mL) 對照品分析測試行動 SOP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Hide scrollbars for smooth mobile look */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Print Friendly A4 Styling */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+      }
+      .mobile-shell {
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .tab-content {
+        display: block !important;
+        margin-bottom: 24px;
+        page-break-inside: avoid;
+      }
+      .accordion-body {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center bg-slate-900 sm:py-4">
+
+  <!-- Mobile App Container -->
+  <div class="mobile-shell w-full max-w-[480px] bg-slate-50 min-h-screen sm:min-h-[92vh] sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden border border-slate-700/40">
+
+    <!-- Sticky App Header -->
+    <header class="bg-gradient-to-r from-teal-800 via-teal-700 to-slate-800 text-white px-4 pt-4 pb-3 sticky top-0 z-30 shadow-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="inline-block bg-amber-400 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">SOP-COSEAL-001</span>
+          <h1 class="text-lg font-bold tracking-tight mt-0.5">COSEAL® 4mL 對照品分析計畫</h1>
+        </div>
+        <div class="flex items-center gap-1.5 no-print">
+          <a href="index.html" class="bg-white/15 hover:bg-white/25 active:scale-95 transition p-2 rounded-xl text-xs font-medium flex items-center gap-1 border border-white/20" title="切換至 3D 工程模型">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
+            <span>3D模型</span>
+          </a>
+          <button onclick="window.print()" class="bg-white/15 hover:bg-white/25 active:scale-95 transition p-2 rounded-xl text-xs font-medium flex items-center gap-1 border border-white/20" title="列印或存為PDF">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>列印</span>
+          </button>
+        </div>
+      </div>
+      <!-- Quick Progress Summary Bar -->
+      <div class="mt-2.5 flex items-center justify-between text-xs text-teal-100 bg-black/20 px-3 py-1.5 rounded-xl">
+        <span>總量：約 800 mg 混粉 / 4.0 mL</span>
+        <span id="headerProgressText" class="font-semibold text-amber-300">檢核進度：0%</span>
+      </div>
+    </header>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg border border-teal-500/40 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-teal-400 animate-ping"></span>
+      <span id="toastMsg">已儲存數據</span>
+    </div>
+
+    <!-- Main Scrollable Content Area -->
+    <main class="flex-1 overflow-y-auto px-3.5 pt-3.5 pb-24 space-y-4">
+
+      <!-- ==================== TAB 1: 總覽與配額 ==================== -->
+      <section id="tab-overview" class="tab-content active space-y-4">
+        
+        <!-- Critical Warning Card -->
+        <div class="bg-rose-50 border-l-4 border-rose-600 p-3.5 rounded-2xl shadow-sm">
+          <div class="flex items-start gap-2.5">
+            <svg class="w-6 h-6 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div class="text-xs leading-relaxed text-rose-950">
+              <p class="font-bold text-sm text-rose-700 mb-1">千萬不可直接整支混合溶解！</p>
+              <p>原廠說明書混合後 <strong>2 小時內即失效</strong>。請採<strong>「乾粉無水無氧分裝、依測試需求微量配製（Method B 兩階段法）」</strong>，最大化完成化學與物性對標。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Micro-Formulation Calculator (Method B) -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <span class="w-2 h-4 bg-teal-600 rounded-full"></span>
+              Method B 微量配製計算機 (20% w/v)
+            </h2>
+            <span class="text-[11px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-lg font-medium">1 mg : 2.5 μL : 2.5 μL</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">輸入欲製備的「目標膠體體積」，自動換算所需 Coseal 預混乾粉與原廠兩管緩衝液體積：</p>
+          
+          <div class="grid grid-cols-2 gap-2.5 mb-3">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <label class="block text-[11px] font-medium text-slate-500 mb-1">目標水凝膠體積 (mL)</label>
+              <input type="number" id="calcVolInput" value="0.40" step="0.05" min="0.05" max="4.0" oninput="updateCalculator('vol')"
+                class="w-full bg-white text-base font-bold text-teal-700 px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <label class="block text-[11px] font-medium text-slate-500 mb-1">需秤取預混乾粉 (mg)</label>
+              <input type="number" id="calcPowderInput" value="80" step="5" min="2" max="800" oninput="updateCalculator('powder')"
+                class="w-full bg-white text-base font-bold text-indigo-700 px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+
+          <!-- Quick Preset Chips -->
+          <div class="flex flex-wrap gap-1.5 mb-3 no-print">
+            <button onclick="setCalcPreset(0.20)" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">單顆溶脹 (0.2mL)</button>
+            <button onclick="setCalcPreset(0.40)" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">溶脹 n=2 (0.4mL)</button>
+            <button onclick="setCalcPreset(0.31)" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">單顆壓縮 (0.31mL)</button>
+            <button onclick="setCalcPreset(0.95)" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">壓縮 n=3 (0.95mL)</button>
+            <button onclick="setCalcPreset(0.60)" class="text-[11px] bg-slate-100 hover:bg-teal-50 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">血管洩漏 (0.6mL)</button>
+          </div>
+
+          <!-- Output Recipe Box -->
+          <div class="bg-gradient-to-br from-teal-900 to-slate-900 text-white p-3 rounded-xl space-y-2 text-xs">
+            <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
+              <span class="text-teal-200">① 預混乾粉 (含 4S-PEG + 4T-PEG 各半)</span>
+              <span id="resPowder" class="font-bold text-sm text-amber-300">80.0 mg</span>
+            </div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
+              <span class="text-teal-200">② 先溶於稀鹽酸液 (S-buffer, pH 6.0)</span>
+              <span id="resSBuffer" class="font-bold text-sm text-white">200 μL (0.20 mL)</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-teal-200">③ 成膠瞬間 1:1 混入鹼液 (T-buffer, pH 9.6)</span>
+              <span id="resTBuffer" class="font-bold text-sm text-emerald-300">200 μL (0.20 mL)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sample Quota Breakdown Cards -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              <span class="w-2 h-4 bg-indigo-600 rounded-full"></span>
+              4 mL 樣品（800 mg 乾粉）最佳化配額表
+            </h2>
+            <span class="text-[11px] text-slate-500">總使用率 100%</span>
+          </div>
+
+          <!-- Visual Segmented Bar -->
+          <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden flex p-0.5 gap-0.5">
+            <div class="bg-purple-500 h-full rounded-l-full" style="width: 4%" title="化學分析 30mg"></div>
+            <div class="bg-teal-500 h-full" style="width: 10%" title="溶脹降解 80mg"></div>
+            <div class="bg-indigo-500 h-full" style="width: 24%" title="壓縮模數 190mg"></div>
+            <div class="bg-amber-500 h-full rounded-r-full" style="width: 62%" title="爆破/洩漏壓 500mg"></div>
+          </div>
+
+          <!-- Quota Item Cards (No horizontal scrolling!) -->
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-start gap-2">
+              <div>
+                <span class="inline-block bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded text-[10px] mb-1">配額 1｜拆封與裝置逆向</span>
+                <p class="font-semibold text-slate-800">乾燥劑規格、粉末總重、液體體積、靜態混合頭流道</p>
+                <p class="text-slate-500 text-[11px] mt-0.5">確立滅菌防潮包裝與雙腔注射器設計基準</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block font-bold text-slate-700 text-sm">0 mg</span>
+                <span class="text-[10px] text-slate-400">無損耗</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-purple-50/60 border border-purple-200 flex justify-between items-start gap-2">
+              <div>
+                <span class="inline-block bg-purple-600 text-white font-bold px-2 py-0.5 rounded text-[10px] mb-1">配額 2｜化學與溶液分析</span>
+                <p class="font-semibold text-slate-800">pH 計、ATR-FTIR、UV-Vis (NHS/SH)、GPC 分子量</p>
+                <p class="text-slate-500 text-[11px] mt-0.5">驗證原廠滅菌後 NHS 取代率 (≥80%) 與 Mw 10 kDa</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block font-bold text-purple-700 text-sm">30 mg</span>
+                <span class="text-[10px] text-purple-600">約 0.15 mL</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-teal-50/60 border border-teal-200 flex justify-between items-start gap-2">
+              <div>
+                <span class="inline-block bg-teal-600 text-white font-bold px-2 py-0.5 rounded text-[10px] mb-1">配額 3｜反應與膨潤降解 (一魚四吃)</span>
+                <p class="font-semibold text-slate-800">成膠秒數、24h 溶脹比、體外降解天數、PBS 釋放 NHS</p>
+                <p class="text-slate-500 text-[11px] mt-0.5">對標 3–5 秒成膠、膨潤 4.3±0.6 倍、NHS 釋放 ≥75%</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block font-bold text-teal-700 text-sm">80 mg</span>
+                <span class="text-[10px] text-teal-600">0.40 mL (n=2)</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-indigo-50/60 border border-indigo-200 flex justify-between items-start gap-2">
+              <div>
+                <span class="inline-block bg-indigo-600 text-white font-bold px-2 py-0.5 rounded text-[10px] mb-1">配額 4｜機械物性對標 (補表 8 空白)</span>
+                <p class="font-semibold text-slate-800">單軸壓縮模數與應力-應變曲線 (Instron/Zwick)</p>
+                <p class="text-slate-500 text-[11px] mt-0.5">直徑 10mm×厚 4mm 模具，對標文獻 91±41 kPa</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block font-bold text-indigo-700 text-sm">190 mg</span>
+                <span class="text-[10px] text-indigo-600">0.95 mL (n=3)</span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200 flex justify-between items-start gap-2">
+              <div>
+                <span class="inline-block bg-amber-600 text-white font-bold px-2 py-0.5 rounded text-[10px] mb-1">配額 5｜封合功能對標</span>
+                <p class="font-semibold text-slate-800">豬頸動脈/PTFE 針孔洩漏壓 (n=3) 或 腸衣爆破壓 (n=1)</p>
+                <p class="text-slate-500 text-[11px] mt-0.5">於所內自建加壓測試機台建立 Coseal 實品基準線</p>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="block font-bold text-amber-700 text-sm">500 mg</span>
+                <span class="text-[10px] text-amber-600">2.50 mL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: 分裝與逆向 SOP ==================== -->
+      <section id="tab-unpack" class="tab-content space-y-3.5">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm font-bold text-slate-800">無水無氧拆解與分裝檢核表</h2>
+            <button onclick="resetChecklist()" class="no-print text-[11px] text-slate-400 hover:text-rose-600">重置勾選</button>
+          </div>
+          <p class="text-xs text-slate-500 mb-3">4S-PEG 極易受潮水解、4T-PEG 易氧化形成二硫鍵，請依序勾選執行：</p>
+
+          <!-- Checklist Items -->
+          <div class="space-y-2.5" id="checklistContainer">
+            
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer active:bg-slate-100 transition">
+              <input type="checkbox" data-check="step1" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Step 1. 手套箱與分裝器材除濕準備</span>
+                <span class="text-slate-600">準備充氮或氬氣手套箱（相對濕度 &lt; 10%）、精密天平、氣密琥珀色玻璃瓶（或低吸附離心管）、Parafilm 封口膜與鋁箔夾鏈袋。</span>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer active:bg-slate-100 transition">
+              <input type="checkbox" data-check="step2" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Step 2. 剪開粉末鋁箔袋與記錄防潮規格</span>
+                <span class="text-slate-600">剪開粉末組件包，立即拍照並記錄內部<strong>乾燥劑種類、克數</strong>及包裝狀態（真空或充氮），供後續 Gamma 滅菌包裝選型參考。</span>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer active:bg-slate-100 transition">
+              <input type="checkbox" data-check="step3" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Step 3. 倒出預混乾粉並精確秤量總重</span>
+                <span class="text-slate-600">於手套箱內旋開粉末注射器（Power syringe）螺旋蓋，將預混乾粉（4S-PEG + 4T-PEG 1:1）全數倒出秤重，驗證是否為 ~800 mg。</span>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-teal-50/70 border border-teal-200 cursor-pointer active:bg-teal-100 transition">
+              <input type="checkbox" data-check="step4" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-teal-900 block">Step 4. 依 5 大實驗配額分裝乾粉 (-20°C 保存)</span>
+                <span class="text-teal-800">建議分裝為 5 管，避免反覆回溫吸濕：<br>
+                  • <strong>管 A (30 mg)</strong>：FT-IR (2mg)、UV-Vis (10mg)、GPC (15mg)<br>
+                  • <strong>管 B (80 mg)</strong>：溶脹比與體外降解測試 (0.4 mL, n=2)<br>
+                  • <strong>管 C (190 mg)</strong>：單軸壓縮模數測試 (0.95 mL, n=3)<br>
+                  • <strong>管 D & E (各 250 mg)</strong>：爆破壓或血管洩漏壓測試<br>
+                  各管充氮、纏 Parafilm，連同原廠乾燥劑入鋁箔袋 <strong>-20°C 避光冷凍</strong>。</span>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer active:bg-slate-100 transition">
+              <input type="checkbox" data-check="step5" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Step 5. 原廠雙管緩衝液體積校準與冷藏 (2–8°C)</span>
+                <span class="text-slate-600">將雙注射筒內之<strong>稀鹽酸液（S-buffer）</strong>與<strong>磷酸鈉/碳酸鈉液（T-buffer）</strong>分別抽出、量測實際總體積（預估各 ~2.0 mL），取 50 μL 測 pH 後，其餘無菌密封於 <strong>2°C–8°C 冷藏</strong>（勿冷凍以免碳酸鹽結晶）。</span>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer active:bg-slate-100 transition">
+              <input type="checkbox" data-check="step6" onchange="saveChecklist()" class="mt-1 w-5 h-5 accent-teal-600 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Step 6. 雙腔注射器與靜態混合頭逆向工程</span>
+                <span class="text-slate-600">以游標卡尺量測並拆解：傳送封口（Transfer port closure）流道、防誤壓夾（Plunger clip），以及標準塗藥器尖端（Applicator tip）內部 <strong>Static mixer 螺旋混合葉片數量、長度與出口內徑</strong>。</span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: 化學分析 SOP ==================== -->
+      <section id="tab-chem" class="tab-content space-y-3">
+        <div class="bg-purple-900 text-white p-3.5 rounded-2xl shadow-sm text-xs">
+          <div class="font-bold text-sm mb-0.5">化學與光譜分析總耗粉量：約 30 mg</div>
+          <p class="text-purple-200">已排除 NMR 與 C18 HPLC，全面採用實驗室現有 pH 計、ATR-FTIR、UV-Vis（無交聯風險兩階段法）與水相 GPC。</p>
+        </div>
+
+        <!-- Accordion 1: pH Meter -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggleAccordion('acc-ph')" class="w-full px-4 py-3.5 text-left flex items-center justify-between bg-slate-50/70">
+            <div>
+              <span class="text-[10px] font-bold bg-teal-100 text-teal-800 px-2 py-0.5 rounded">項目 2.1｜耗液各 50 μL</span>
+              <h3 class="text-sm font-bold text-slate-800 mt-1">緩衝液單獨與 1:1 混合 pH 實測</h3>
+            </div>
+            <svg id="icon-acc-ph" class="w-5 h-5 text-slate-400 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="acc-ph" class="accordion-body px-4 pb-4 pt-2 text-xs space-y-2 border-t border-slate-100">
+            <ul class="list-disc pl-4 space-y-1.5 text-slate-700">
+              <li><strong>S-buffer (稀鹽酸液)</strong>：取 50 μL 以微量 pH 電極量測（文獻對標值：<strong>pH 6.0</strong>；專利範圍 pH 1–3 或弱酸）。</li>
+              <li><strong>T-buffer (磷酸鈉/碳酸鈉緩衝液)</strong>：取 50 μL 實測（文獻對標值：<strong>pH 9.6</strong>）。</li>
+              <li><strong>1:1 等體積混合液 pH</strong>：將兩液各 25 μL 混合後量測最終反應環境 pH（預期落在 pH 8.0–9.0 區間），釐清原廠達成 <strong>3–5 秒極速成膠</strong>之關鍵鹼度。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Accordion 2: ATR-FTIR -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggleAccordion('acc-ir')" class="w-full px-4 py-3.5 text-left flex items-center justify-between bg-slate-50/70">
+            <div>
+              <span class="text-[10px] font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">項目 2.2｜耗粉 1–2 mg (可回收)</span>
+              <h3 class="text-sm font-bold text-slate-800 mt-1">ATR-FTIR 乾粉與凍乾水凝膠結構指紋</h3>
+            </div>
+            <svg id="icon-acc-ir" class="w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="acc-ir" class="accordion-body hidden px-4 pb-4 pt-2 text-xs space-y-2.5 border-t border-slate-100">
+            <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-amber-900">
+              <strong>操作禁忌：嚴禁使用傳統 KBr 壓片法！</strong> KBr 極易吸濕會導致 PEG-NHS 瞬間水解。請直接將 1–2 mg 乾粉壓在 <strong>ATR 鑽石晶體</strong>上於 1 分鐘內完成掃描（4000–600 cm⁻¹）。
+            </div>
+            <div class="space-y-1.5 text-slate-700">
+              <p class="font-bold text-slate-900">關鍵觀測特徵峰：</p>
+              <p>• <strong>1740 cm⁻¹ (酯基 Ester C=O)</strong> & <strong>1780 / 1810 cm⁻¹ (NHS 環雙峰)</strong>：驗證 4S-PEG 活性酯完整性。</p>
+              <p>• <strong>1100 cm⁻¹ (C-O-C 醚鍵)</strong> & <strong>2880 cm⁻¹ (C-H)</strong>：PEG 主鏈內標準峰。計算 <strong>I₁₇₄₀ / I₁₁₀₀ 峰高比值</strong>，與自製 Gamma 滅菌前後原料半定量對標。</p>
+              <p>• <strong>1710 cm⁻¹ (-COOH)</strong> & <strong>3300–3500 cm⁻¹ (-OH)</strong>：評估原廠產品受潮與預水解背景值。</p>
+              <p>• <strong>成膠後凍乾樣品再掃描</strong>：取溶脹/壓縮測試後之 Coseal 凍乾膠掃描，確認 1740/1780/1810 cm⁻¹ 消失，並於 <strong>1685–1695 cm⁻¹ 出現交聯硫酯鍵 (Thioester C=O)</strong>。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 3: UV-Vis No-Crosslink Risk Method + Calculator -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggleAccordion('acc-uv')" class="w-full px-4 py-3.5 text-left flex items-center justify-between bg-slate-50/70">
+            <div>
+              <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">項目 2.3｜耗粉僅 2.0 mg (零交聯風險)</span>
+              <h3 class="text-sm font-bold text-slate-800 mt-1">UV-Vis 兩階段定量法 (NHS & SH 取代率)</h3>
+            </div>
+            <svg id="icon-acc-uv" class="w-5 h-5 text-slate-400 transition-transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="acc-uv" class="accordion-body px-4 pb-4 pt-2 text-xs space-y-3 border-t border-slate-100">
+            <div class="bg-teal-50 border border-teal-200 p-2.5 rounded-xl text-teal-900">
+              <strong>為什麼不會交聯結塊？</strong> 先用弱酸（S-buffer pH 6.0）將預混粉稀釋 100 倍（降至 0.2% w/v，遠低於 20% 成膠濃度）並鎖死 -SH，再稀釋 10 倍至鹼液中瞬間完全釋放 NHS！
+            </div>
+
+            <div class="space-y-2 text-slate-700">
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="font-bold text-slate-900 block">Step 1. 配製弱酸性防交聯母液 (2.0 mg/mL)</span>
+                精確秤取 <strong>2.0 mg Coseal 預混乾粉</strong>（內含 <strong>1.0 mg 4S-PEG</strong> + <strong>1.0 mg 4T-PEG</strong>），加入 <strong>1.0 mL S-buffer (pH 6.0 或 pH 5.2 醋酸鈉)</strong>，Vortex 震盪 3 分鐘至完全澄清透明。
+              </div>
+
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="font-bold text-slate-900 block">Step 2. 測 4S-PEG 之 NHS 有效取代率 (UV 260 / 284 nm)</span>
+                <p class="mt-1">• <strong>初始背景吸光值 (A₀)</strong>：取 <strong>100 μL 酸性母液 + 900 μL PBS (pH 7.4)</strong>（此時 4S-PEG 最終濃度為 0.1 mg/mL，理論 100% NHS 濃度 = <strong>0.040 mM</strong>），混合瞬間（0 秒）測 UV 吸光值 A₀（代表儲存期間已水解脫落之游離 NHS）。</p>
+                <p class="mt-1">• <strong>完全釋放吸光值 (A_max)</strong>：取 <strong>100 μL 酸性母液 + 900 μL 含微量氨水 (或 0.01M NaOH) 之緩衝液</strong>，靜置 15–30 分鐘讓活性 NHS 100% 釋放為游離 NHS⁻，測終點吸光值 A_max。</p>
+              </div>
+
+              <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <span class="font-bold text-slate-900 block">Step 3. 順便測 4T-PEG 之 -SH 硫醇取代率 (UV 412 nm)</span>
+                從 Step 1 剩餘的酸性母液取 <strong>100 μL</strong>，加入含過量 <strong>Ellman's reagent (DTNB)</strong> 之反應緩衝液（共 1.0 mL），靜置 10 分鐘後測 <strong>412 nm</strong> 吸光值，代入半胱胺酸 (Cysteine) 或 4T-PEG 檢量線算出 -SH 活性保留率。
+              </div>
+            </div>
+
+            <!-- Mini NHS Substitution Calculator -->
+            <div class="bg-slate-900 text-white p-3 rounded-xl space-y-2 no-print">
+              <div class="font-bold text-amber-300 text-xs">📊 4S-PEG 有效取代率快速換算器</div>
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-300 block">實測有效 ΔC (mM)</label>
+                  <input type="number" id="uvDeltaC" value="0.034" step="0.001" oninput="calcNHSSub()" class="w-full bg-slate-800 text-white font-bold px-2 py-1 rounded border border-slate-600 text-xs">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-300 block">混粉總重 W (mg)</label>
+                  <input type="number" id="uvWeight" value="2.0" step="0.1" oninput="calcNHSSub()" class="w-full bg-slate-800 text-white font-bold px-2 py-1 rounded border border-slate-600 text-xs">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-300 block">稀釋倍率</label>
+                  <input type="number" id="uvDilution" value="10" step="1" oninput="calcNHSSub()" class="w-full bg-slate-800 text-white font-bold px-2 py-1 rounded border border-slate-600 text-xs">
+                </div>
+              </div>
+              <div class="flex justify-between items-center pt-1 border-t border-slate-700 text-xs">
+                <span class="text-slate-300">理論最大濃度 C_theo: <strong id="uvTheoOut">0.040 mM</strong></span>
+                <span class="text-emerald-400 font-bold text-sm">取代率: <span id="uvSubOut">85.0%</span></span>
+              </div>
+              <p class="text-[10px] text-slate-400">註：目標規格 ≥ 80%（Wallace 文獻指出取代率低於 55% 即無法成膠）。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 4: Aqueous GPC -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <button onclick="toggleAccordion('acc-gpc')" class="w-full px-4 py-3.5 text-left flex items-center justify-between bg-slate-50/70">
+            <div>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">項目 2.4｜耗粉 10 mg</span>
+              <h3 class="text-sm font-bold text-slate-800 mt-1">水相 GPC 凝膠滲透層析 (滅菌後分子量)</h3>
+            </div>
+            <svg id="icon-acc-gpc" class="w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="acc-gpc" class="accordion-body hidden px-4 pb-4 pt-2 text-xs space-y-2 border-t border-slate-100">
+            <ul class="list-disc pl-4 space-y-1.5 text-slate-700">
+              <li><strong>樣品配製</strong>：取 10 mg Coseal 預混粉溶於 1.0 mL 之 <strong>pH 5.2 醋酸鈉緩衝液 (6.5 mM)</strong>，過 0.22 μm 濾膜後進樣 20 μL。</li>
+              <li><strong>管柱與偵測器</strong>：水相分子篩管柱（如 Waters Ultrahydrogel 250）搭配 <strong>RI 折射率偵測器</strong>。</li>
+              <li><strong>對標重點</strong>：確認原廠經 Gamma 滅菌後之主峰分子量是否維持 <strong>10,000 Da</strong>、計算多分散性 PDI (Mw/Mn)，並觀察前端是否有 4T-PEG 二硫鍵氧化偶聯之 <strong>20 kDa 雙聚體峰</strong>。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: 物性與功能對標 SOP ==================== -->
+      <section id="tab-phys" class="tab-content space-y-3.5">
+
+        <!-- Interactive Stopwatch for Gelation Time -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 text-white rounded-2xl p-4 shadow-md border border-teal-500/30 no-print">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-400/30">內建實驗碼錶｜不額外耗材</span>
+            <span class="text-[11px] text-slate-300">原廠規格：3–5s 成膠 / ≤60s 固化</span>
+          </div>
+          <h3 class="text-sm font-bold mb-2">成膠時間實測計時器 (配製溶脹或壓縮樣品時同步測)</h3>
+          
+          <div class="bg-black/40 rounded-2xl p-3 text-center my-2 border border-white/10">
+            <div id="timerDisplay" class="text-4xl font-mono font-bold tracking-wider text-amber-300">00.0 s</div>
+            <div class="grid grid-cols-2 gap-2 mt-2 text-xs border-t border-white/10 pt-2">
+              <div>
+                <span class="text-slate-400 block text-[10px]">起始成膠 (流動變慢)</span>
+                <span id="recordedStartGel" class="font-bold text-teal-300">-- s</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">停止流動 (完全固化)</span>
+                <span id="recordedStopFlow" class="font-bold text-emerald-300">-- s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+            <button id="btnStartTimer" onclick="toggleTimer()" class="bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 py-2.5 rounded-xl transition shadow">
+              ▶ 啟動混合計時
+            </button>
+            <button onclick="recordGelPoint('start')" class="bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 py-2.5 rounded-xl transition shadow">
+              ① 記錄起始成膠
+            </button>
+            <button onclick="recordGelPoint('stop')" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 py-2.5 rounded-xl transition shadow">
+              ② 記錄停止流動
+            </button>
+            <button onclick="resetTimer()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-white py-2.5 rounded-xl transition">
+              ↺ 歸零重置
+            </button>
+          </div>
+        </div>
+
+        <!-- Physical Test 1: Swelling + Degradation + NHS Release ("One Fish Four Eats") -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="bg-teal-100 text-teal-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">配額 3｜耗粉 80 mg (0.40 mL, n=2)</span>
+            <span class="text-teal-700 font-bold text-[11px]">★ 一魚四吃高CP值法</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">體外溶脹比、水解降解與 NHS 累積釋放測試</h3>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-slate-700">
+            <p><strong>1. 微量配製 (0.4 mL)</strong>：取 <strong>80 mg</strong> 混粉溶於 <strong>200 μL S-buffer</strong>，注入 PTFE 圓盤模具瞬間與 <strong>200 μL T-buffer</strong> 1:1 混合，製成 2 顆 0.2 mL 水凝膠圓盤（n=2）。</p>
+            <p><strong>2. 初始基準</strong>：靜置交聯 5 分鐘後脫模，記錄初始重量 W₀ 與初始體積 V₀。</p>
+            <p><strong>3. 一魚四吃數據採集（浸泡於 10 mL PBS, pH 7.2, 37°C 震盪）</strong>：</p>
+            <ul class="list-disc pl-4 space-y-1 text-slate-600">
+              <li><strong>數據① 24h 平衡膨潤比</strong>：於 1, 4, 24 hr 取出吸乾表面水分秤重 W_t 與量尺寸 V_t，對標文獻 <strong>V/V₀ = 4.3 ± 0.6 倍</strong>（釐清自製樣品測得 5.27 倍是否為模具差異）。</li>
+              <li><strong>數據② 體外降解天數</strong>：每 24 hr 追蹤重量損失曲線，確認體外完全水解天數（對標 <strong>6–14 天</strong>）。</li>
+              <li><strong>數據③ 成膠副產物 NHS 釋放率</strong>：在 30 min 及 24 hr 抽取 100 μL 之 <strong>PBS 浸泡上清液</strong>測 UV 260/284 nm，計算累積釋放率（對標 <strong>≥ 75%</strong>，自製組為 80.1%）。</li>
+              <li><strong>數據④ 凍乾殘膠 FT-IR</strong>：取降解前或部分水凝膠冷凍乾燥，掃描 ATR-FTIR 驗證硫酯鍵。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Physical Test 2: Uniaxial Compression Modulus -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">配額 4｜耗粉 190 mg (0.95 mL, n=3)</span>
+            <span class="text-indigo-700 font-bold text-[11px]">★ 填補報告表 8 待訂規格</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">單軸壓縮模數測試 (Compression Modulus)</h3>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-slate-700">
+            <p><strong>1. 模具規格</strong>：鐵氟龍圓柱模具（直徑 10 mm × 厚度 4 mm，單顆體積 <strong>0.314 mL</strong>，做 n=3 共需約 0.95 mL）。</p>
+            <p><strong>2. 單顆配製法</strong>：建議單顆逐一配製以防太快固化——每次取 <strong>63 mg 混粉 + 157.5 μL S-buffer</strong> 溶解，注入模具瞬間加入 <strong>157.5 μL T-buffer</strong> 快速攪勻，室溫交聯固化 20 分鐘。</p>
+            <p><strong>3. Instron / Zwick 機台參數</strong>：設定預載 <strong>0.1 N</strong>，壓縮速率 <strong>1 mm/min</strong>，壓縮至 80% 形變或破裂。</p>
+            <p><strong>4. 數據計算</strong>：擷取應力-應變曲線（S-S curve）中 <strong>15%–20% 應變之線性區間斜率</strong>作為壓縮模數（文獻對標值：<strong>91 ± 41 kPa</strong>）。測試完之完整水凝膠可立即轉入 PBS 兼做溶脹比或凍乾打 IR！</p>
+          </div>
+        </div>
+
+        <!-- Physical Test 3: Burst Pressure / Vascular Leakage Pressure -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-2.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">配額 5｜耗粉 500 mg (2.50 mL)</span>
+            <span class="text-amber-700 font-bold text-[11px]">★ 終端封合功能驗證</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">爆破壓 (Burst) 與血管針孔洩漏壓 (Leakage) 二選一</h3>
+          
+          <div class="grid grid-cols-1 gap-2.5">
+            <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200">
+              <span class="font-bold text-amber-900 block mb-1">選項 A（最推薦，可獲得 n=3 統計重複數）：豬頸動脈 / PTFE 人工血管針孔洩漏壓</span>
+              <p class="text-slate-700">於豬頸動脈或 ePTFE 管材上以針頭刺出 <strong>0.6–0.9 mm 標準穿刺孔</strong>，每次僅需局部塗抹 <strong>0.6–0.8 mL</strong>（120–160 mg 混粉）Coseal，交聯 5 分鐘後以注射泵加壓生理食鹽水記錄洩漏壓。<br>
+              • <strong>對標規格</strong>：PTFE <strong>400 ± 50 mmHg</strong> ／ 豬頸動脈 <strong>660 ± 150 mmHg</strong>（目標 ≥ 200 mmHg）。</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="font-bold text-slate-800 block mb-1">選項 B（標準腸衣法，單次耗膠 2.0 mL 僅夠做 n=1）：膠原蛋白腸衣爆破壓</span>
+              <p class="text-slate-700">於膠原蛋白膜中央以 2 mm 針頭製造穿刺缺損，塗覆 <strong>2.0 mL</strong>（400 mg 混粉）Coseal，固化 3–5 分鐘後以 5 mL/min 注入染色水加壓至破裂。<br>
+              • <strong>對標規格</strong>：文獻 <strong>125 ± 36 mmHg</strong>（你們自製配方於所內機台實測為 279.5–367.8 mmHg，跑 1 組 Coseal 即可校準機台倍率）。</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ==================== TAB 5: 數據紀錄本 ==================== -->
+      <section id="tab-record" class="tab-content space-y-3.5">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="text-sm font-bold text-slate-800">COSEAL® 實測數據紀錄表</h2>
+              <p class="text-[11px] text-slate-500">輸入即自動暫存於手機瀏覽器，不怕重新整理遺失</p>
+            </div>
+            <button onclick="clearLabData()" class="no-print text-[11px] text-rose-600 hover:underline">清空重填</button>
+          </div>
+
+          <div class="space-y-3 text-xs mt-3" id="labForm">
+            
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-slate-600 font-medium mb-1">實驗日期</label>
+                <input type="date" id="rec_date" onchange="saveLabData()" class="w-full bg-slate-50 px-2.5 py-2 rounded-xl border border-slate-300 font-medium">
+              </div>
+              <div>
+                <label class="block text-slate-600 font-medium mb-1">Coseal 批號 (Lot)</label>
+                <input type="text" id="rec_lot" placeholder="例: BN2026..." oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-2 rounded-xl border border-slate-300 font-medium">
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-2.5">
+              <div class="font-bold text-teal-800 mb-2">1. 拆封與基礎溶液數據</div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">乾粉實測總重 (mg)</label>
+                  <input type="number" id="rec_powder_wt" placeholder="預估 ~800" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">乾燥劑規格與包裝</label>
+                  <input type="text" id="rec_desiccant" placeholder="例: 矽膠 1g / 充氮" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">S-buffer 實測 pH (對標 6.0)</label>
+                  <input type="number" step="0.01" id="rec_ph_s" placeholder="6.00" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-800">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">T-buffer 實測 pH (對標 9.6)</label>
+                  <input type="number" step="0.01" id="rec_ph_t" placeholder="9.60" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-800">
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-slate-500 text-[11px] mb-0.5">S + T (1:1) 混合後實測 pH</label>
+                  <input type="number" step="0.01" id="rec_ph_mix" placeholder="例: 8.85" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-slate-800">
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-2.5">
+              <div class="font-bold text-purple-800 mb-2">2. 化學光譜與 GPC 數據</div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">ATR-FTIR I₁₇₄₀/I₁₁₀₀ 比值</label>
+                  <input type="text" id="rec_ir_ratio" placeholder="例: 0.24" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">4S-PEG NHS 有效取代率 (%)</label>
+                  <input type="number" step="0.1" id="rec_nhs_sub" placeholder="目標 ≥80%" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-purple-700">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">4T-PEG SH 有效取代率 (%)</label>
+                  <input type="number" step="0.1" id="rec_sh_sub" placeholder="DTNB 412nm" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-purple-700">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">GPC Mw (Da) / PDI</label>
+                  <input type="text" id="rec_gpc" placeholder="例: 10200 / 1.08" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold">
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-2.5">
+              <div class="font-bold text-indigo-800 mb-2">3. 成膠、體外物性與封合強度對標 (填補表 8)</div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">起始成膠秒數 (對標 3-5s)</label>
+                  <input type="text" id="rec_gel_start" placeholder="秒 (s)" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-teal-700">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">完全固化秒數 (對標 ≤60s)</label>
+                  <input type="text" id="rec_gel_stop" placeholder="秒 (s)" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold text-teal-700">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">24h 膨潤比 (對標 4.3±0.6)</label>
+                  <input type="text" id="rec_swell" placeholder="倍 (V/V₀ 或 W/W₀)" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">PBS 副產物 NHS 釋放率 (%)</label>
+                  <input type="text" id="rec_nhs_rel" placeholder="目標 ≥75%" oninput="saveLabData()" class="w-full bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-300 font-bold">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">單軸壓縮模數 (對標 91±41 kPa)</label>
+                  <input type="text" id="rec_comp_mod" placeholder="kPa (n=3 平均)" oninput="saveLabData()" class="w-full bg-indigo-50 px-2.5 py-1.5 rounded-lg border border-indigo-300 font-bold text-indigo-800">
+                </div>
+                <div>
+                  <label class="block text-slate-500 text-[11px] mb-0.5">爆破壓 / 血管洩漏壓 (mmHg)</label>
+                  <input type="text" id="rec_burst" placeholder="mmHg" oninput="saveLabData()" class="w-full bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-300 font-bold text-amber-900">
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-2.5">
+              <label class="block text-slate-600 font-medium mb-1">靜態混合頭逆向尺寸與實驗備註</label>
+              <textarea id="rec_notes" rows="3" placeholder="記錄 Static mixer 葉片數、塗藥器內徑、氣泡狀況或異常觀察..." oninput="saveLabData()" class="w-full bg-slate-50 p-2.5 rounded-xl border border-slate-300"></textarea>
+            </div>
+
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2.5 mt-4 no-print">
+            <button onclick="copyReportText()" class="bg-teal-700 hover:bg-teal-600 active:scale-95 text-white font-bold py-3 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              複製實驗摘要報表
+            </button>
+            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-white font-bold py-3 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              匯出 PDF / 列印全案
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Sticky Bottom Navigation Bar (Mobile App Feel) -->
+    <nav class="no-print bg-white border-t border-slate-200 px-2 py-1.5 sticky bottom-0 z-30 grid grid-cols-5 gap-1 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+      <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-teal-700 bg-teal-50 font-bold transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+        <span class="text-[10px] mt-0.5">總覽配額</span>
+      </button>
+
+      <button onclick="switchTab('unpack')" id="nav-unpack" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <span class="text-[10px] mt-0.5">分裝檢核</span>
+      </button>
+
+      <button onclick="switchTab('chem')" id="nav-chem" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        <span class="text-[10px] mt-0.5">化學分析</span>
+      </button>
+
+      <button onclick="switchTab('phys')" id="nav-phys" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span class="text-[10px] mt-0.5">物性對標</span>
+      </button>
+
+      <button onclick="switchTab('record')" id="nav-record" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span class="text-[10px] mt-0.5">數據紀錄</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    // --- 1. Bottom Tab Switching ---
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = 'nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium transition';
+      });
+      const activeBtn = document.getElementById('nav-' + tabId);
+      activeBtn.className = 'nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-teal-700 bg-teal-50 font-bold transition';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- 2. Accordion Toggle ---
+    function toggleAccordion(id) {
+      const body = document.getElementById(id);
+      const icon = document.getElementById('icon-' + id);
+      body.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+
+    // --- 3. Method B Micro-Formulation Calculator (20% w/v = 200 mg/mL) ---
+    function updateCalculator(source) {
+      const volInput = document.getElementById('calcVolInput');
+      const powderInput = document.getElementById('calcPowderInput');
+      let vol = parseFloat(volInput.value) || 0;
+      let powder = parseFloat(powderInput.value) || 0;
+
+      if (source === 'vol') {
+        powder = Math.round(vol * 200 * 10) / 10;
+        powderInput.value = powder;
+      } else {
+        vol = Math.round((powder / 200) * 1000) / 1000;
+        volInput.value = vol;
+      }
+
+      const halfVolUl = Math.round(powder * 2.5 * 10) / 10;
+      const halfVolMl = (halfVolUl / 1000).toFixed(2);
+
+      document.getElementById('resPowder').textContent = `${powder.toFixed(1)} mg`;
+      document.getElementById('resSBuffer').textContent = `${halfVolUl} μL (${halfVolMl} mL)`;
+      document.getElementById('resTBuffer').textContent = `${halfVolUl} μL (${halfVolMl} mL)`;
+    }
+
+    function setCalcPreset(vol) {
+      document.getElementById('calcVolInput').value = vol;
+      updateCalculator('vol');
+    }
+
+    // --- 4. UV-Vis NHS Substitution Calculator ---
+    function calcNHSSub() {
+      const deltaC = parseFloat(document.getElementById('uvDeltaC').value) || 0;
+      const totalW = parseFloat(document.getElementById('uvWeight').value) || 2.0;
+      const dil = parseFloat(document.getElementById('uvDilution').value) || 10;
+      // 4S-PEG is 50% of Coseal mixed powder, MW = 10,000 Da, 4 arms
+      const weight4S = 0.5 * totalW;
+      const cTheo = ((weight4S / 10000) * 4) / dil * 1000; // in mM if in 1mL
+      // Wait: weight4S (mg) / 10000 (mg/mmol) * 4 = mmol in 1 mL = M -> *1000 = mM
+      // Specifically: 1.0 mg / 10,000 = 0.0001 mmol in 1 mL = 0.1 mM polymer = 0.4 mM arms. Divided by 10 dilution = 0.040 mM.
+      const theoMm = (weight4S * 0.4) / dil;
+      const subPct = theoMm > 0 ? (deltaC / theoMm) * 100 : 0;
+
+      document.getElementById('uvTheoOut').textContent = `${theoMm.toFixed(3)} mM`;
+      document.getElementById('uvSubOut').textContent = `${subPct.toFixed(1)}%`;
+    }
+
+    // --- 5. Gelation Time Stopwatch ---
+    let timerInterval = null;
+    let startTime = 0;
+    let elapsedTime = 0;
+    let running = false;
+
+    function toggleTimer() {
+      const btn = document.getElementById('btnStartTimer');
+      if (!running) {
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          document.getElementById('timerDisplay').textContent = (elapsedTime / 1000).toFixed(1) + ' s';
+        }, 100);
+        running = true;
+        btn.textContent = '⏸ 暫停計時';
+        btn.className = 'bg-rose-500 hover:bg-rose-400 active:scale-95 text-white py-2.5 rounded-xl transition shadow';
+      } else {
+        clearInterval(timerInterval);
+        running = false;
+        btn.textContent = '▶ 繼續計時';
+        btn.className = 'bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 py-2.5 rounded-xl transition shadow';
+      }
+    }
+
+    function recordGelPoint(type) {
+      const sec = (elapsedTime / 1000).toFixed(1);
+      if (type === 'start') {
+        document.getElementById('recordedStartGel').textContent = sec + ' s';
+        document.getElementById('rec_gel_start').value = sec;
+        saveLabData();
+        showToast(`已記錄起始成膠：${sec} 秒`);
+      } else {
+        document.getElementById('recordedStopFlow').textContent = sec + ' s';
+        document.getElementById('rec_gel_stop').value = sec;
+        saveLabData();
+        showToast(`已記錄完全固化：${sec} 秒`);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      running = false;
+      elapsedTime = 0;
+      document.getElementById('timerDisplay').textContent = '00.0 s';
+      const btn = document.getElementById('btnStartTimer');
+      btn.textContent = '▶ 啟動混合計時';
+      btn.className = 'bg-teal-500 hover:bg-teal-400 active:scale-95 text-slate-950 py-2.5 rounded-xl transition shadow';
+    }
+
+    // --- 6. Checklist & Lab Data LocalStorage Persistence ---
+    function saveChecklist() {
+      const checks = {};
+      const boxes = document.querySelectorAll('#checklistContainer input[type="checkbox"]');
+      let checkedCount = 0;
+      boxes.forEach(box => {
+        checks[box.dataset.check] = box.checked;
+        if (box.checked) checkedCount++;
+      });
+      localStorage.setItem('coseal_checklist_v1', JSON.stringify(checks));
+      const pct = Math.round((checkedCount / boxes.length) * 100);
+      document.getElementById('headerProgressText').textContent = `檢核進度：${pct}%`;
+    }
+
+    function loadChecklist() {
+      const saved = localStorage.getItem('coseal_checklist_v1');
+      if (saved) {
+        const checks = JSON.parse(saved);
+        document.querySelectorAll('#checklistContainer input[type="checkbox"]').forEach(box => {
+          if (checks[box.dataset.check]) box.checked = true;
+        });
+      }
+      saveChecklist();
+    }
+
+    function resetChecklist() {
+      document.querySelectorAll('#checklistContainer input[type="checkbox"]').forEach(box => box.checked = false);
+      saveChecklist();
+      showToast('已重置分裝檢核表');
+    }
+
+    const formIds = [
+      'rec_date', 'rec_lot', 'rec_powder_wt', 'rec_desiccant',
+      'rec_ph_s', 'rec_ph_t', 'rec_ph_mix', 'rec_ir_ratio',
+      'rec_nhs_sub', 'rec_sh_sub', 'rec_gpc', 'rec_gel_start',
+      'rec_gel_stop', 'rec_swell', 'rec_nhs_rel', 'rec_comp_mod',
+      'rec_burst', 'rec_notes'
+    ];
+
+    function saveLabData() {
+      const data = {};
+      formIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem('coseal_lab_data_v1', JSON.stringify(data));
+    }
+
+    function loadLabData() {
+      const saved = localStorage.getItem('coseal_lab_data_v1');
+      if (saved) {
+        const data = JSON.parse(saved);
+        formIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && data[id] !== undefined) el.value = data[id];
+        });
+      } else {
+        document.getElementById('rec_date').valueAsDate = new Date();
+      }
+    }
+
+    function clearLabData() {
+      formIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      localStorage.removeItem('coseal_lab_data_v1');
+      showToast('已清空實驗數據紀錄');
+    }
+
+    function copyReportText() {
+      const getVal = id => document.getElementById(id)?.value || '未填寫';
+      const report = [
+        `【COSEAL® (4 mL) 市售對照品實測數據摘要】`,
+        `• 測試日期：${getVal('rec_date')} ｜ 批號：${getVal('rec_lot')}`,
+        `• 預混乾粉實測總重：${getVal('rec_powder_wt')} mg ｜ 防潮包裝：${getVal('rec_desiccant')}`,
+        `• 緩衝液 pH：S-buffer = ${getVal('rec_ph_s')} (對標6.0) / T-buffer = ${getVal('rec_ph_t')} (對標9.6) / 1:1混合 = ${getVal('rec_ph_mix')}`,
+        `• ATR-FTIR (I1740/I1100)：${getVal('rec_ir_ratio')}`,
+        `• UV-Vis 4S-PEG NHS 有效取代率：${getVal('rec_nhs_sub')}% (目標 ≥80%)`,
+        `• UV-Vis 4T-PEG SH 有效取代率：${getVal('rec_sh_sub')}%`,
+        `• 水相 GPC (Mw / PDI)：${getVal('rec_gpc')} (對標 10,000 Da)`,
+        `• 成膠時間：起始成膠 ${getVal('rec_gel_start')} 秒 (對標 3-5s) / 完全固化 ${getVal('rec_gel_stop')} 秒 (對標 ≤60s)`,
+        `• 24h 平衡膨潤比：${getVal('rec_swell')} 倍 (對標 4.3±0.6) ｜ PBS 副產物 NHS 釋放率：${getVal('rec_nhs_rel')}%`,
+        `• 單軸壓縮模數 (表8基準)：${getVal('rec_comp_mod')} kPa (文獻 91±41 kPa)`,
+        `• 封合強度 (爆破壓/洩漏壓)：${getVal('rec_burst')} mmHg`,
+        `• 逆向工程與備註：${getVal('rec_notes')}`
+      ].join('\n');
+
+      const textarea = document.createElement('textarea');
+      textarea.value = report;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast('已複製完整實驗報表至剪貼簿！');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2200);
+    }
+
+    window.onload = function() {
+      loadChecklist();
+      loadLabData();
+      updateCalculator('vol');
+      calcNHSSub();
+    };
+  </script>
+</body>
+</html>
